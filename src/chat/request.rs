@@ -1,0 +1,388 @@
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+use futures_util::{TryStreamExt, stream::BoxStream};
+
+use crate::errors::RequestError;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RequestBody {
+    pub messages: Vec<Message>,
+    pub model: String,
+    /// `frequency_penalty` must be between -2.0 and 2.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub frequency_penalty: Option<f32>,
+    /// `presence_penalty` must be between -2.0 and 2.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub presence_penalty: Option<f32>,
+    /// `max_tokens` must be greater than 1
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub response_format: Option<ResponseFormat>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub seed: Option<i64>,
+    /// The number of responses to generate.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<u32>,
+    /// stop keywords
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop: Option<StopKeywords>,
+    /// Although it is optional, you should explicitly designate it
+    /// for an expected response.
+    pub stream: bool,
+    pub stream_options: Option<StreamOptions>,
+    pub temperature: Option<f32>,
+    pub top_p: Option<f32>,
+    pub tools: Option<Vec<Tools>>,
+    pub tool_choice: Option<ToolChoice>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub logprobs: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_logprobs: Option<u32>,
+
+    /// Other request bodies that are not in standard OpenAI API.
+    #[serde(flatten)]
+    pub extra_body: Option<ExtraBody>,
+
+    /// Other request bodies that are not in standard OpenAI API and
+    /// not included in the ExtraBody struct.
+    #[serde(flatten)]
+    pub extra_body_map: Option<HashMap<String, String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "role", rename_all = "lowercase")]
+pub enum Message {
+    System {
+        content: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+    },
+    User {
+        content: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+    },
+    Assistant {
+        content: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+        /// Set this to true for completion
+        #[serde(skip_serializing_if = "is_false")]
+        prefix: bool,
+        /// Used for the deepseek-reasoner model in the Chat Prefix
+        /// Completion feature as the input for the CoT in the last
+        /// assistant message. When using this feature, the prefix
+        /// parameter must be set to true.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        reasoning_content: Option<String>,
+    },
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum ResponseFormat {
+    JsonObject,
+    Text,
+}
+
+fn is_false(value: &bool) -> bool {
+    !value
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum StopKeywords {
+    Word(String),
+    Words(Vec<String>),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StreamOptions {
+    pub include_usage: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Tools {
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub function: Option<Vec<ToolFunction>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ToolFunction {
+    name: String,
+    description: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    strict: Option<bool>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ToolFunctionParameter {
+    name: String,
+    description: String,
+    required: bool,
+    parameters: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum ToolChoice {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "auto")]
+    Auto,
+    #[serde(rename = "required")]
+    Required,
+    #[serde(untagged)]
+    Specific {
+        /// This parameter should always be "function" literal.
+        #[serde(rename = "type")]
+        type_: ToolChoiceSpecificType,
+        function: ToolChoiceFunction,
+    },
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ToolChoiceFunction {
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum ToolChoiceSpecificType {
+    Function,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ExtraBody {
+    /// Make sense only for Qwen API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enable_thinking: Option<bool>,
+    /// Make sense only for Qwen API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thinking_budget: Option<u32>,
+    ///The size of the candidate set for sampling during generation.
+    ///
+    /// Make sense only for Qwen API.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_k: Option<u32>,
+}
+
+impl Default for RequestBody {
+    fn default() -> Self {
+        RequestBody {
+            messages: vec![],
+            model: "deepseek-chat".to_string(),
+            frequency_penalty: None,
+            presence_penalty: None,
+            max_tokens: None,
+            response_format: None,
+            seed: None,
+            n: None,
+            stop: None,
+            stream: false,
+            stream_options: None,
+            temperature: None,
+            top_p: None,
+            tools: None,
+            tool_choice: None,
+            logprobs: None,
+            top_logprobs: None,
+            extra_body: None,
+            extra_body_map: None,
+        }
+    }
+}
+
+impl RequestBody {
+    pub async fn get_response(&self, url: &str, key: &str) -> anyhow::Result<String> {
+        assert!(!self.stream);
+
+        let client = reqwest::Client::new();
+        let response = client
+            .post(url)
+            .headers({
+                let mut headers = reqwest::header::HeaderMap::new();
+                headers.insert("Content-Type", "application/json".parse().unwrap());
+                headers.insert("Accept", "application/json".parse().unwrap());
+                headers
+            })
+            .bearer_auth(key)
+            .json(self)
+            .send()
+            .await
+            .map_err(|e| anyhow::anyhow!("Failed to send request: {}", e))?;
+
+        if response.status() != reqwest::StatusCode::OK {
+            return Err(
+                crate::errors::RequestError::ResponseStatus(response.status().as_u16()).into(),
+            );
+        }
+
+        let text = response.text().await?;
+
+        Ok(text)
+    }
+
+    /// Getting stream response. You must ensure self.stream is true, or otherwise it will panic.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use std::sync::LazyLock;
+    /// use futures_util::StreamExt;
+    /// use openai_interface::chat::request::{Message, RequestBody};
+    ///
+    /// const DEEPSEEK_API_KEY: LazyLock<&str> =
+    ///     LazyLock::new(|| include_str!("../.././keys/deepseek_domestic_key").trim());
+    /// const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+    /// const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
+    ///
+    /// #[tokio::main]
+    /// async fn main() {
+    ///     let request = RequestBody {
+    ///         messages: vec![
+    ///             Message::System {
+    ///                 content: "This is a request of test purpose. Reply briefly".to_string(),
+    ///                 name: None,
+    ///             },
+    ///             Message::User {
+    ///                 content: "What's your name?".to_string(),
+    ///                 name: None,
+    ///             },
+    ///         ],
+    ///         model: DEEPSEEK_MODEL.to_string(),
+    ///         stream: true,
+    ///         ..Default::default()
+    ///     };
+    ///
+    ///     let mut response = request
+    ///         .stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+    ///         .await
+    ///         .unwrap();
+    ///
+    ///     while let Some(chunk) = response.next().await {
+    ///         println!("{}", chunk.unwrap());
+    ///     }
+    /// }
+    /// ```
+    pub async fn stream_response(
+        &self,
+        url: &str,
+        api_key: &str,
+    ) -> Result<BoxStream<'static, Result<String, anyhow::Error>>, anyhow::Error> {
+        // 断言开启了流模式
+        assert!(
+            self.stream,
+            "RequestBody::stream_response requires `stream: true`"
+        );
+
+        let client = reqwest::Client::new();
+
+        let response = client
+            .post(url)
+            .headers({
+                let mut headers = reqwest::header::HeaderMap::new();
+                headers.insert("Content-Type", "application/json".parse().unwrap());
+                headers.insert("Accept", "application/json".parse().unwrap());
+                headers
+            })
+            .bearer_auth(api_key)
+            .json(self)
+            .send()
+            .await
+            .map_err(|e| anyhow::anyhow!("Failed to send request: {}", e))?;
+
+        if !response.status().is_success() {
+            return Err(RequestError::ResponseStatus(response.status().as_u16()).into());
+        }
+
+        let stream = response
+            .bytes_stream()
+            .map_err(|e| RequestError::StreamError(e.to_string()).into())
+            .try_filter_map(|bytes| async move {
+                let s = std::str::from_utf8(&bytes)
+                    .map_err(|e| RequestError::SseParseError(e.to_string()))?;
+                if s.starts_with("[DONE]") {
+                    Ok(None)
+                } else {
+                    Ok(Some(s.to_string()))
+                }
+            });
+
+        Ok(Box::pin(stream) as BoxStream<'static, _>)
+
+        // return Err(anyhow!("Not implemented"));
+    }
+}
+
+#[cfg(test)]
+mod request_test {
+    use std::sync::LazyLock;
+
+    use futures_util::StreamExt;
+
+    use crate::chat::request::{Message, RequestBody};
+
+    const DEEPSEEK_API_KEY: LazyLock<&str> =
+        LazyLock::new(|| include_str!("../.././keys/deepseek_domestic_key").trim());
+    const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+    const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
+
+    #[tokio::test]
+    async fn test_00_basics() {
+        let request = RequestBody {
+            messages: vec![
+                Message::System {
+                    content: "This is a request of test purpose. Reply briefly".to_string(),
+                    name: None,
+                },
+                Message::User {
+                    content: "What's your name?".to_string(),
+                    name: None,
+                },
+            ],
+            model: DEEPSEEK_MODEL.to_string(),
+            stream: false,
+            ..Default::default()
+        };
+
+        let response = request
+            .get_response(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY)
+            .await
+            .unwrap();
+
+        println!("{}", response);
+
+        assert!(response.to_ascii_lowercase().contains("deepseek"));
+    }
+
+    #[tokio::test]
+    async fn test_01_streaming() {
+        let request = RequestBody {
+            messages: vec![
+                Message::System {
+                    content: "This is a request of test purpose. Reply briefly".to_string(),
+                    name: None,
+                },
+                Message::User {
+                    content: "What's your name?".to_string(),
+                    name: None,
+                },
+            ],
+            model: DEEPSEEK_MODEL.to_string(),
+            stream: true,
+            ..Default::default()
+        };
+
+        let mut response = request
+            .stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+            .await
+            .unwrap();
+
+        while let Some(chunk) = response.next().await {
+            println!("{}", chunk.unwrap());
+        }
+    }
+}
