@@ -11,3 +11,9 @@ pub enum RequestError {
     #[error("{0}")]
     StreamError(String),
 }
+
+#[derive(Debug, Error)]
+pub enum ResponseError {
+    #[error("Deserialization error:\n{0}\n\nPlease report this error to the project issue.")]
+    DeserializationError(String),
+}
