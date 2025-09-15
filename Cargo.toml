@@ -1,6 +1,6 @@
 [package]
 name = "openai-interface"
-version = "0.1.0"
+version = "0.1.1-alpha.1"
 edition = "2024"
 authors = [
     "Yu Xiaosong <q5vsx3@163.com>", # 于小淞
@@ -24,5 +24,5 @@ futures-util = { version = "0.3" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-#[target.x86_64-unknown-linux-musl.dependencies]
+[target.x86_64-unknown-linux-musl.dependencies]
 openssl-sys = { version = "0.9", features = ["vendored"] }
