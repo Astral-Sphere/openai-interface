@@ -74,8 +74,11 @@ pub struct TopLogprob {
 pub struct CompletionUsage {
     pub completion_tokens: usize,
     pub prompt_tokens: usize,
-    pub prompt_cache_hit_tokens: usize,
-    pub prompt_cache_miss_tokens: usize,
+
+    // These two fields seem to be DeepSeek specific.
+    pub prompt_cache_hit_tokens: Option<usize>,
+    pub prompt_cache_miss_tokens: Option<usize>,
+
     pub total_tokens: usize,
     pub completion_tokens_details: Option<CompletionTokensDetails>,
 }
