@@ -15,7 +15,7 @@
 //!
 //! # Modules
 //!
-//! - [`chat`]: Contains all chat completion related functionality
+//! - [`chat`]: Contains all chat completion related structs, enums and methods.
 //! - [`errors`]: Defines error types used throughout the crate
 //!
 //! # Examples
