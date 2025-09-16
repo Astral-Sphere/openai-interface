@@ -89,7 +89,7 @@
 //!         ..Default::default()
 //!     };
 //!
-//!     // Send the request (you'll need a valid API URL and key)
+//!     // Send the request
 //!     let mut response_stream = request.stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY).await?;
 //!
 //!     while let Some(chunk) = response_stream.next().await {
@@ -102,7 +102,8 @@
 //! # Musl Build
 //!
 //! This crate is designed to adapt with the musl libc, making it suitable for
-//! lightweight deployments in containerized environments.
+//! lightweight deployments in containerized environments. Longer compile times
+//! may be required, for openssl is needed to be built from source.
 //!
 //! To build for musl:
 //! ```bash
