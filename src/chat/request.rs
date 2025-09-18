@@ -230,6 +230,7 @@ impl Default for RequestBody {
             model: "deepseek-chat".to_string(),
             frequency_penalty: None,
             presence_penalty: None,
+            max_completion_tokens: None,
             max_tokens: None,
             response_format: None,
             seed: None,
