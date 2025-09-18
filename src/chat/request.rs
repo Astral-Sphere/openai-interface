@@ -79,6 +79,14 @@ pub enum Message {
         #[serde(skip_serializing_if = "Option::is_none")]
         reasoning_content: Option<String>,
     },
+    /// In this case, the role of the message author is `assistant`.
+    /// The field `{ role = "tool" }` is added automatically.
+    Tool {
+        /// The contents of the tool message.
+        content: String,
+        /// Tool call that this message is responding to.
+        tool_call_id: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
