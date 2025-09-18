@@ -66,7 +66,13 @@ pub enum Message {
         name: Option<String>,
     },
     Assistant {
-        content: String,
+        /// The contents of the assistant message. Required unless `tool_calls`
+        /// or `function_call` is specified. (Note that `function_call` is deprecated
+        /// in favour of `tool_calls`.)
+        content: Option<String>,
+        /// The refusal message by the assistant.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        refusal: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         name: Option<String>,
         /// Set this to true for completion
