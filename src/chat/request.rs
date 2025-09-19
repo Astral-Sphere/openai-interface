@@ -193,6 +193,25 @@ pub enum Message {
         /// Tool call that this message is responding to.
         tool_call_id: String,
     },
+    /// In this case, the role of the message author is `function`.
+    /// The field `{ role = "function" }` is added automatically.
+    Function {
+        /// The contents of the function message.
+        content: String,
+        /// The name of the function to call.
+        name: String,
+    },
+    /// In this case, the role of the message author is `developer`.
+    /// The field `{ role = "developer" }` is added automatically.
+    Developer {
+        /// The contents of the developer message.
+        content: String,
+        /// An optional name for the participant.
+        ///
+        /// Provides the model information to differentiate between
+        /// participants of the same role.
+        name: Option<String>,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
