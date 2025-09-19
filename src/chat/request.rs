@@ -237,6 +237,7 @@ pub struct JSONSchema {
     pub strict: Option<bool>,
 }
 
+#[inline]
 fn is_false(value: &bool) -> bool {
     !value
 }
