@@ -6,7 +6,7 @@ use futures_util::{TryStreamExt, stream::BoxStream};
 
 use crate::errors::RequestError;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct RequestBody {
     /// A list of messages comprising the conversation so far.
     pub messages: Vec<Message>,
@@ -345,33 +345,6 @@ pub struct ExtraBody {
     /// Make sense only for Qwen API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_k: Option<u32>,
-}
-
-impl Default for RequestBody {
-    fn default() -> Self {
-        RequestBody {
-            messages: vec![],
-            model: "deepseek-chat".to_string(),
-            frequency_penalty: None,
-            presence_penalty: None,
-            max_completion_tokens: None,
-            max_tokens: None,
-            response_format: None,
-            seed: None,
-            n: None,
-            stop: None,
-            stream: false,
-            stream_options: None,
-            temperature: None,
-            top_p: None,
-            tools: None,
-            tool_choice: None,
-            logprobs: None,
-            top_logprobs: None,
-            extra_body: None,
-            extra_body_map: None,
-        }
-    }
 }
 
 impl RequestBody {
