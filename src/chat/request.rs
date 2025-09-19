@@ -10,30 +10,37 @@ use crate::errors::RequestError;
 pub struct RequestBody {
     /// A list of messages comprising the conversation so far.
     pub messages: Vec<Message>,
+
     /// Name of the model to use to generate the response.
     pub model: String,
+
     /// Although it is optional, you should explicitly designate it
     /// for an expected response.
     pub stream: bool,
+
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their
     /// existing frequency in the text so far, decreasing the model's likelihood to
     /// repeat the same line verbatim.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f32>,
+
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on
     /// whether they appear in the text so far, increasing the model's likelihood to
     /// talk about new topics.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>,
+
     /// The maximum number of tokens that can be generated in the chat completion.
     /// Deprecated according to OpenAI's Python SDK in favour of
     /// `max_completion_tokens`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<u32>,
+
     /// An upper bound for the number of tokens that can be generated for a completion,
     /// including visible output tokens and reasoning tokens.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_completion_tokens: Option<u32>,
+
     /// specifying the format that the model must output.
     ///
     /// Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured
@@ -45,37 +52,52 @@ pub struct RequestBody {
     /// preferred for models that support it.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_format: Option<ResponseFormat>, // The type of this attribute needs improvements.
+
+    /// A stable identifier used to help detect users of your application that may be
+    /// violating OpenAI's usage policies. The IDs should be a string that uniquely
+    /// identifies each user. It is recommended to hash their username or email address, in
+    /// order to avoid sending any identifying information.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safety_identifier: Option<String>,
+
     /// If specified, the system will make a best effort to sample deterministically. Determinism
     /// is not guaranteed, and you should refer to the `system_fingerprint` response parameter to
     /// monitor changes in the backend.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seed: Option<i64>,
+
     /// How many chat completion choices to generate for each input message. Note that
     /// you will be charged based on the number of generated tokens across all of the
     /// choices. Keep `n` as `1` to minimize costs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u32>,
+
     /// Up to 4 sequences where the API will stop generating further tokens. The
     /// returned text will not contain the stop sequence.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop: Option<StopKeywords>,
+
     /// Options for streaming response. Only set this when you set `stream: true`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream_options: Option<StreamOptions>,
+
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will
     /// make the output more random, while lower values like 0.2 will make it more
     /// focused and deterministic. It is generally recommended to alter this or `top_p` but
     /// not both.
     pub temperature: Option<f32>,
+
     /// An alternative to sampling with temperature, called nucleus sampling, where the
     /// model considers the results of the tokens with top_p probability mass. So 0.1
     /// means only the tokens comprising the top 10% probability mass are considered.
     ///
     /// It is generally recommended to alter this or `temperature` but not both.
     pub top_p: Option<f32>,
+
     /// A list of tools the model may call.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<Tools>>,
+
     /// Controls which (if any) tool is called by the model. `none` means the model will
     /// not call any tool and instead generates a message. `auto` means the model can
     /// pick between generating a message or calling one or more tools. `required` means
@@ -84,8 +106,10 @@ pub struct RequestBody {
     /// call that tool.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<ToolChoice>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logprobs: Option<bool>,
+
     /// An integer between 0 and 20 specifying the number of most likely tokens to
     /// return at each token position, each with an associated log probability.
     /// `logprobs` must be set to `true` if this parameter is used.
