@@ -94,7 +94,7 @@ pub struct RequestBody {
 
     /// A list of tools the model may call.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<Tools>>,
+    pub tools: Option<Vec<RequestTool>>,
 
     /// Controls which (if any) tool is called by the model. `none` means the model will
     /// not call any tool and instead generates a message. `auto` means the model can
@@ -307,7 +307,7 @@ pub struct StreamOptions {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Tools {
+pub struct RequestTool {
     #[serde(rename = "type")]
     pub type_: String,
     pub function: Option<Vec<ToolFunction>>,
