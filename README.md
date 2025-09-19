@@ -24,7 +24,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-openai-interface = "0.1"
+openai-interface = "0.2"
 ```
 
 ## Usage
