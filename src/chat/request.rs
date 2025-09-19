@@ -490,7 +490,7 @@ impl RequestBody {
     ///     };
     ///
     ///     let mut response = request
-    ///         .stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+    ///         .get_stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
     ///         .await
     ///         .unwrap();
     ///
@@ -499,7 +499,7 @@ impl RequestBody {
     ///     }
     /// }
     /// ```
-    pub async fn stream_response(
+    pub async fn get_stream_response(
         &self,
         url: &str,
         api_key: &str,
@@ -507,7 +507,7 @@ impl RequestBody {
         // 断言开启了流模式
         assert!(
             self.stream,
-            "RequestBody::stream_response requires `stream: true`"
+            "RequestBody::get_stream_response requires `stream: true`"
         );
 
         let client = reqwest::Client::new();
@@ -609,7 +609,7 @@ mod request_test {
         };
 
         let mut response = request
-            .stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+            .get_stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
             .await
             .unwrap();
 

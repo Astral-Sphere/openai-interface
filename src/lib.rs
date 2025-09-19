@@ -90,7 +90,7 @@
 //!     };
 //!
 //!     // Send the request
-//!     let mut response_stream = request.stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY).await?;
+//!     let mut response_stream = request.get_stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY).await?;
 //!
 //!     while let Some(chunk) = response_stream.next().await {
 //!         println!("{}", chunk?);
