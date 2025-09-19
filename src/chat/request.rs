@@ -107,6 +107,9 @@ pub struct RequestBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<ToolChoice>,
 
+    /// Whether to return log probabilities of the output tokens or not. If true,
+    /// returns the log probabilities of each output token returned in the `content` of
+    /// `message`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logprobs: Option<bool>,
 
