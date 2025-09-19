@@ -306,27 +306,82 @@ pub struct StreamOptions {
     pub include_usage: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct RequestTool {
-    #[serde(rename = "type")]
-    pub type_: String,
-    pub function: Option<Vec<ToolFunction>>,
+#[derive(Serialize, Debug)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum RequestTool {
+    /// The type of the tool. Currently, only `function` is supported.
+    Function { function: ToolFunction },
+    /// The type of the custom tool. Always `custom`.
+    Custom {
+        /// Properties of the custom tool.
+        custom: ToolCustom,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ToolFunction {
-    name: String,
-    description: String,
+    /// The name of the function to be called. Must be a-z, A-Z, 0-9, or
+    /// contain underscores and dashes, with a maximum length
+    /// of 64.
+    pub name: String,
+    /// A description of what the function does, used by the model to choose when and
+    /// how to call the function.
+    pub description: String,
+    /// The parameters the functions accepts, described as a JSON Schema object.
+    ///
+    /// See the
+    /// [openai function calling guide](https://platform.openai.com/docs/guides/function-calling)
+    /// for examples, and the
+    /// [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
+    /// documentation about the format.
+    ///
+    /// Omitting `parameters` defines a function with an empty parameter list.
+    pub parameters: serde_json::Map<String, serde_json::Value>,
+    /// Whether to enable strict schema adherence when generating the function call.
+    ///
+    /// If set to true, the model will follow the exact schema defined in the
+    /// `parameters` field. Only a subset of JSON Schema is supported when `strict` is
+    /// `true`. Learn more about Structured Outputs in the
+    /// [openai function calling guide](https://platform.openai.com/docs/guides/function-calling).
     #[serde(skip_serializing_if = "Option::is_none")]
-    strict: Option<bool>,
+    pub strict: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ToolFunctionParameter {
-    name: String,
-    description: String,
-    required: bool,
-    parameters: String,
+#[derive(Serialize, Debug)]
+pub struct ToolCustom {
+    /// The name of the custom tool, used to identify it in tool calls.
+    pub name: String,
+    /// Optional description of the custom tool, used to provide more context.
+    pub description: String,
+    /// The input format for the custom tool. Default is unconstrained text.
+    pub format: String,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum ToolCustomFormat {
+    /// Unconstrained text format. Always `text`.
+    CustomFormatText,
+    /// Grammar format. Always `grammar`.
+    CustomFormatGrammar {
+        /// Your chosen grammar.
+        grammar: ToolCustomFormatGrammarGrammar,
+    },
+}
+
+#[derive(Debug, Serialize)]
+pub struct ToolCustomFormatGrammarGrammar {
+    /// The grammar definition.
+    pub definition: String,
+    /// The syntax of the grammar definition. One of `lark` or `regex`.
+    pub syntax: ToolCustomFormatGrammarGrammarSyntax,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ToolCustomFormatGrammarGrammarSyntax {
+    Lark,
+    Regex,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
