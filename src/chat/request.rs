@@ -204,10 +204,37 @@ pub struct ToolCallCustom {
     name: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum ResponseFormat {
+    /// The type of response format being defined. Always `json_schema`.
+    JsonSchema {
+        /// Structured Outputs configuration options, including a JSON Schema.
+        json_schema: JSONSchema,
+    },
+    /// The type of response format being defined. Always `json_object`.
     JsonObject,
+    /// The type of response format being defined. Always `text`.
     Text,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct JSONSchema {
+    /// The name of the response format. Must be a-z, A-Z, 0-9, or contain
+    /// underscores and dashes, with a maximum length of 64.
+    pub name: String,
+    /// A description of what the response format is for, used by the model to determine
+    /// how to respond in the format.
+    pub description: String,
+    /// The schema for the response format, described as a JSON Schema object. Learn how
+    /// to build JSON schemas [here](https://json-schema.org/).
+    pub schema: serde_json::Map<String, serde_json::Value>,
+    /// Whether to enable strict schema adherence when generating the output. If set to
+    /// true, the model will always follow the exact schema defined in the `schema`
+    /// field. Only a subset of JSON Schema is supported when `strict` is `true`. To
+    /// learn more, read the
+    /// [Structured Outputs guide](https://platform.openai.com/docs/guides/structured-outputs).
+    pub strict: Option<bool>,
 }
 
 fn is_false(value: &bool) -> bool {
