@@ -384,32 +384,77 @@ pub enum ToolCustomFormatGrammarGrammarSyntax {
     Regex,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ToolChoice {
-    #[serde(rename = "none")]
     None,
-    #[serde(rename = "auto")]
     Auto,
-    #[serde(rename = "required")]
     Required,
     #[serde(untagged)]
-    Specific {
-        /// This parameter should always be "function" literal.
-        #[serde(rename = "type")]
-        type_: ToolChoiceSpecificType,
-        function: ToolChoiceFunction,
-    },
+    Specific(ToolChoiceSpecific),
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum ToolChoiceSpecific {
+    /// Allowed tool configuration type. Always `allowed_tools`.
+    AllowedTools {
+        /// Constrains the tools available to the model to a pre-defined set.
+        allowed_tools: ToolChoiceAllowedTools,
+    },
+    /// For function calling, the type is always `function`.
+    Function { function: ToolChoiceFunction },
+    /// For custom tool calling, the type is always `custom`.
+    Custom { custom: ToolChoiceCustom },
+}
+
+#[derive(Debug, Serialize)]
+pub struct ToolChoiceAllowedTools {
+    /// Constrains the tools available to the model to a pre-defined set.
+    ///
+    /// - `auto` allows the model to pick from among the allowed tools and generate a
+    /// message.
+    /// - `required` requires the model to call one or more of the allowed tools.
+    pub mode: ToolChoiceAllowedToolsMode,
+    /// A list of tool definitions that the model should be allowed to call.
+    ///
+    /// For the Chat Completions API, the list of tool definitions might look like:
+    ///
+    /// ```json
+    /// [
+    ///   { "type": "function", "function": { "name": "get_weather" } },
+    ///   { "type": "function", "function": { "name": "get_time" } }
+    /// ]
+    /// ```
+    pub tools: serde_json::Map<String, serde_json::Value>,
+}
+
+/// The mode for allowed tools in tool choice.
+///
+/// Controls how the model should handle the set of allowed tools:
+///
+/// - `auto` allows the model to pick from among the allowed tools and generate a
+///   message.
+/// - `required` requires the model to call one or more of the allowed tools.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ToolChoiceAllowedToolsMode {
+    /// The model can choose whether to use the allowed tools or not.
+    Auto,
+    /// The model must use at least one of the allowed tools.
+    Required,
+}
+
+#[derive(Debug, Serialize)]
 pub struct ToolChoiceFunction {
+    /// The name of the function to call.
     pub name: String,
 }
 
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "lowercase")]
-pub enum ToolChoiceSpecificType {
-    Function,
+#[derive(Debug, Serialize)]
+pub struct ToolChoiceCustom {
+    /// The name of the custom tool to call.
+    pub name: String,
 }
 
 #[derive(Serialize, Debug)]
