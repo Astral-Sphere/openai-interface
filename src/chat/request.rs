@@ -126,7 +126,7 @@ pub struct RequestBody {
     /// Other request bodies that are not in standard OpenAI API and
     /// not included in the ExtraBody struct.
     #[serde(flatten, skip_serializing_if = "Option::is_none")]
-    pub extra_body_map: Option<HashMap<String, String>>,
+    pub extra_body_map: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
