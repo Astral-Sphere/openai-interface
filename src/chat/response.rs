@@ -4,11 +4,17 @@ pub mod streaming {
     use crate::errors::ResponseError;
 
     #[derive(Debug, Deserialize)]
-    pub struct Completion {
+    pub struct ChatCompletion {
+        /// A unique identifier for the chat completion.
         pub id: String,
+        /// A list of chat completion choices. Can be more than one
+        /// if `n` is greater than 1.
         pub choices: Vec<CompletionChoice>,
+        /// The Unix timestamp (in seconds) of when the chat completion was created.
         pub created: u64,
+        /// The model used for the chat completion.
         pub model: String,
+        /// The object type, which is always `chat.completion`
         pub object: String,
         pub usage: Option<CompletionUsage>,
     }
@@ -83,9 +89,9 @@ pub mod streaming {
         pub total_tokens: usize,
     }
 
-    impl Completion {
+    impl ChatCompletion {
         pub fn parse_string(content: &str) -> Result<Self, crate::errors::ResponseError> {
-            let parse_result: Result<Completion, _> = serde_json::from_str(content)
+            let parse_result: Result<ChatCompletion, _> = serde_json::from_str(content)
                 .map_err(|e| ResponseError::DeserializationError(e.to_string()));
             parse_result
         }
@@ -112,7 +118,7 @@ pub mod streaming {
             ];
 
             for stream in streams {
-                let parsed = Completion::parse_string(stream);
+                let parsed = ChatCompletion::parse_string(stream);
                 match parsed {
                     Ok(completion) => {
                         println!("Deserialized: {:#?}", completion);
@@ -140,7 +146,7 @@ pub mod streaming {
             ];
 
             for stream in streams {
-                let parsed = Completion::parse_string(stream);
+                let parsed = ChatCompletion::parse_string(stream);
                 match parsed {
                     Ok(completion) => {
                         println!("Deserialized: {:#?}", completion);
@@ -160,22 +166,77 @@ pub mod no_streaming {
     use crate::errors::ResponseError;
 
     #[derive(Debug, Deserialize)]
-    pub struct Completion {
+    pub struct ChatCompletion {
+        /// A unique identifier for the chat completion.
         pub id: String,
-        pub choices: Vec<ResponseChoice>,
+        /// A list of chat completion choices. Can be more than one
+        /// if `n` is greater than 1.
+        pub choices: Vec<Choice>,
+        /// The Unix timestamp (in seconds) of when the chat completion was created.
         pub created: u64,
+        /// The model used for the chat completion.
         pub model: String,
-        pub system_fingerprint: String,
-        pub object: String,
-        pub usage: CompletionUsage,
+        /// Specifies the processing type used for serving the request.
+        ///
+        /// - If set to 'auto', then the request will be processed with the service tier
+        ///   configured in the Project settings. Unless otherwise configured, the Project
+        ///   will use 'default'.
+        /// - If set to 'default', then the request will be processed with the standard
+        ///   pricing and performance for the selected model.
+        /// - If set to '[flex](https://platform.openai.com/docs/guides/flex-processing)' or
+        ///   '[priority](https://openai.com/api-priority-processing/)', then the request
+        ///   will be processed with the corresponding service tier.
+        /// - When not set, the default behavior is 'auto'.
+        ///
+        /// When the `service_tier` parameter is set, the response body will include the
+        /// `service_tier` value based on the processing mode actually used to serve the
+        /// request. This response value may be different from the value set in the
+        /// parameter.
+        pub service_tier: Option<ServiceTier>,
+        /// The system fingerprint used for the chat completion.
+        /// Can be used in conjunction with the `seed` request parameter to understand when
+        /// backend changes have been made that might impact determinism.
+        pub system_fingerprint: Option<String>,
+        /// The object type, which is always `chat.completion`.
+        pub object: ChatCompletionObject,
+        /// Usage statistics for the completion request.
+        pub usage: Option<CompletionUsage>,
     }
 
     #[derive(Debug, Deserialize)]
-    pub struct ResponseChoice {
+    #[serde(rename_all = "lowercase")]
+    pub enum ServiceTier {
+        Auto,
+        Default,
+        Flex,
+        Scale,
+        Priority,
+    }
+
+    /// The object type, which is always `chat.completion`.
+    #[derive(Debug, Deserialize)]
+    pub enum ChatCompletionObject {
+        /// The object type is always `chat.completion`.
+        #[serde(rename = "chat.completion")]
+        ChatCompletion,
+    }
+
+    #[derive(Debug, Deserialize)]
+    pub struct Choice {
+        /// The reason the model stopped generating tokens.
+        ///
+        /// This will be `stop` if the model hit a natural stop point or a provided stop
+        /// sequence, `length` if the maximum number of tokens specified in the request was
+        /// reached, `content_filter` if content was omitted due to a flag from our content
+        /// filters, `tool_calls` if the model called a tool, or `function_call`
+        /// (deprecated) if the model called a function.
         pub finish_reason: FinishReason,
+        /// The index of the choice in the list of choices.
         pub index: usize,
-        pub message: ResponseMessage,
+        /// Log probability information for the choice.
         pub logprobs: Option<ResponseLogprobs>,
+        /// A chat completion message generated by the model.
+        pub message: ResponseMessage,
     }
 
     #[derive(Debug, Deserialize, PartialEq)]
@@ -183,7 +244,10 @@ pub mod no_streaming {
     pub enum FinishReason {
         Length,
         Stop,
+        ToolCalls,
+        FunctionCall,
         ContentFilter,
+        /// This choice can only be found in the manual of DeepSeek
         InsufficientSystemResource,
     }
 
@@ -245,9 +309,9 @@ pub mod no_streaming {
         pub reasoning_tokens: usize,
     }
 
-    impl Completion {
+    impl ChatCompletion {
         pub fn parse_string(content: &str) -> Result<Self, crate::errors::ResponseError> {
-            let parse_result: Result<Completion, _> = serde_json::from_str(content)
+            let parse_result: Result<ChatCompletion, _> = serde_json::from_str(content)
                 .map_err(|e| ResponseError::DeserializationError(e.to_string()));
             parse_result
         }
@@ -287,7 +351,7 @@ pub mod no_streaming {
               "system_fingerprint": "fp_08f168e49b_prod0820_fp8_kvcache"
             }"#;
 
-            let parsed = super::Completion::parse_string(json);
+            let parsed = super::ChatCompletion::parse_string(json);
             match parsed {
                 Ok(_) => {}
                 Err(e) => {
