@@ -1,6 +1,7 @@
-use serde::Serialize;
+//! This module contains the request body and POST method for the chat completion API.
 
 use futures_util::{TryStreamExt, stream::BoxStream};
+use serde::Serialize;
 
 use crate::errors::RequestError;
 
