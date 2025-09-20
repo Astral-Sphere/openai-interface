@@ -264,10 +264,7 @@ pub mod no_streaming {
     #[derive(Debug, Deserialize)]
     #[serde(rename_all = "snake_case")]
     pub enum ResponseRole {
-        User,
         Assistant,
-        System,
-        Tool,
     }
 
     #[derive(Debug, Deserialize)]
