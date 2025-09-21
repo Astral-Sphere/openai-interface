@@ -658,8 +658,6 @@ impl RequestBody {
         );
 
         Ok(Box::pin(stream) as BoxStream<'static, _>)
-
-        // return Err(anyhow!("Not implemented"));
     }
 }
 
