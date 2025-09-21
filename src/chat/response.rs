@@ -23,7 +23,7 @@ pub mod streaming {
         /// This fingerprint represents the backend configuration that the model runs with.
         /// Can be used in conjunction with the `seed` request parameter to understand when
         /// backend changes have been made that might impact determinism.
-        pub service_tier: ServiceTier,
+        pub service_tier: Option<ServiceTier>,
         /// This fingerprint represents the backend configuration that the model runs with.
         /// Can be used in conjunction with the `seed` request parameter to understand when
         /// backend changes have been made that might impact determinism.
