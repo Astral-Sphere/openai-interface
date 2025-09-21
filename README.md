@@ -8,12 +8,11 @@ etc. are still in development.
 
 ## Features
 
-- **Chat Completions**: Full support for OpenAI's chat completion API
+- **Chat Completions**: Full support for OpenAI's chat completion API, including both streaming and non-streaming responses
 - **Streaming and Non-streaming**: Support for both streaming and non-streaming responses
 - **Strong Typing**: Complete type definitions for all API requests and responses,
   utilizing Rust's powerful typing system
-- **Error Handling**: All errors are converted into `crate::error::RequestError` or
-  `crate::error::ResponseError`
+- **Error Handling**: Comprehensive error handling with detailed error types defined in the [`errors`] module
 - **Async/Await**: Built with async/await support
 - **Musl Support**: Designed to work with musl libc out-of-the-box
 - **Multiple Provider Support**: Works with OpenAI, DeepSeek, Qwen, and other compatible APIs
@@ -152,51 +151,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 You can customize whatever request parameters you want. If you need extra platform
 -specific fields, find them in `extra_body`, or add them to `extra_body_map`.
 
-### Getting Response
+### Modules
 
-Parse the response content by `crate::chat::response::streaming::Completion::parse_string`
-or `crate::chat::response::no_streaming::Completion::parse_string`
-
-```rust
-fn no_streaming_example_deepseek() {
-    let json = r#"{
-      "id": "30f6413a-a827-4cf3-9898-f13a8634b798",
-      "object": "chat.completion",
-      "created": 1757944111,
-      "model": "deepseek-chat",
-      "choices": [
-        {
-          "index": 0,
-          "message": {
-            "role": "assistant",
-            "content": "Hello! How can I help you today? 😊"
-          },
-          "logprobs": null,
-          "finish_reason": "stop"
-        }
-      ],
-      "usage": {
-        "prompt_tokens": 10,
-        "completion_tokens": 11,
-        "total_tokens": 21,
-        "prompt_tokens_details": {
-          "cached_tokens": 0
-        },
-        "prompt_cache_hit_tokens": 0,
-        "prompt_cache_miss_tokens": 10
-      },
-      "system_fingerprint": "fp_08f168e49b_prod0820_fp8_kvcache"
-    }"#;
-
-    let parsed = super::Completion::parse_string(json);
-    match parsed {
-        Ok(_) => {}
-        Err(e) => {
-            panic!("Failed to deserialize: {}", e);
-        }
-    }
-}
-```
+- [`chat`]: Contains all chat completion related structs, enums, and methods.
+- [`errors`]: Defines error types used throughout the crate.
 
 ### Error Handling
 
