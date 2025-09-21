@@ -621,5 +621,43 @@ pub mod no_streaming {
                 }
             }
         }
+
+        #[test]
+        fn no_streaming_example_qwen() {
+            let json = r#"{
+                "choices": [
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": "我是阿里云开发的一款超大规模语言模型，我叫通义千问。"
+                        },
+                        "finish_reason": "stop",
+                        "index": 0,
+                        "logprobs": null
+                    }
+                ],
+                "object": "chat.completion",
+                "usage": {
+                    "prompt_tokens": 3019,
+                    "completion_tokens": 104,
+                    "total_tokens": 3123,
+                    "prompt_tokens_details": {
+                        "cached_tokens": 2048
+                    }
+                },
+                "created": 1735120033,
+                "system_fingerprint": null,
+                "model": "qwen-plus",
+                "id": "chatcmpl-6ada9ed2-7f33-9de2-8bb0-78bd4035025a"
+            }"#;
+
+            let parsed = ChatCompletion::from_str(json);
+            match parsed {
+                Ok(_) => {}
+                Err(e) => {
+                    panic!("Failed to deserialize: {}", e);
+                }
+            }
+        }
     }
 }
