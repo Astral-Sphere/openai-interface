@@ -1,6 +1,6 @@
 [package]
 name = "openai-interface"
-version = "0.2.1-alpha.2"
+version = "0.2.2"
 edition = "2024"
 authors = [
     "Yu Xiaosong <q5vsx3@163.com>", # 于小淞
