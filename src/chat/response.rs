@@ -424,6 +424,7 @@ pub mod no_streaming {
 
     #[cfg(test)]
     mod test {
+        use super::*;
 
         #[test]
         fn no_streaming_example_deepseek() {
@@ -456,7 +457,7 @@ pub mod no_streaming {
               "system_fingerprint": "fp_08f168e49b_prod0820_fp8_kvcache"
             }"#;
 
-            let parsed = super::ChatCompletion::from_str(json);
+            let parsed = ChatCompletion::from_str(json);
             match parsed {
                 Ok(_) => {}
                 Err(e) => {
