@@ -20,11 +20,15 @@ etc. are still in development.
 
 ## Installation
 
+> [!WARNING] Versions prior to 0.3.0 has serious issues on processing SSE streaming responses.
+> Instead of a single chunk, chances are that multiple chunks will be returned in each iteration
+> of `chat::request::ChatCompletion::get_streaming_response`.
+
 Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-openai-interface = "0.2"
+openai-interface = "0.3"
 ```
 
 ## Usage
