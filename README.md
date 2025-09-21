@@ -35,12 +35,15 @@ openai-interface = "0.3"
 
 ### Chat Completion
 
+This crate provides methods for both streaming and non-streaming chat completions. The following examples demonstrate how to use these features.
+
 #### Non-streaming Chat Completion
 
 ```rust
 use std::sync::LazyLock;
 use openai_interface::chat::request::{Message, RequestBody};
-use openai_interface::chat::response::no_streaming::Completion;
+use openai_interface::chat::response::no_streaming::ChatCompletion;
+use std::str::FromStr;
 
 // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
 const DEEPSEEK_API_KEY: LazyLock<&str> =
@@ -67,28 +70,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Send the request
-    let response_text = request.get_response(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY).await?;
-
-    // Parse the response
-    let completion = Completion::parse_string(&response_text)?;
-
-    if let Some(choice) = completion.choices.first() {
-        if let Some(content) = &choice.message.content {
-            println!("Assistant: {}", content);
-        }
-    }
-
+    let response: String = request
+        .get_response(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY)
+        .await?;
+    let chat_completion = ChatCompletion::from_str(&response).unwrap();
+    let text = chat_completion.choices[0]
+        .message
+        .content
+        .as_deref()
+        .unwrap();
+    println!("{:?}", text);
     Ok(())
 }
 ```
 
 #### Streaming Chat Completion
 
+This example demonstrates how to handle streaming responses from the API.
+
 ```rust
+use openai_interface::chat::response::streaming::{CompletionContent, ChatCompletionChunk};
 use openai_interface::chat::request::{Message, RequestBody};
-use openai_interface::chat::response::streaming::Completion;
 use futures_util::StreamExt;
 
+use std::str::FromStr;
 use std::sync::LazyLock;
 
 // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
@@ -106,7 +111,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 name: None,
             },
             Message::User {
-                content: "Count from 1 to 10.".to_string(),
+                content: "Who are you?".to_string(),
                 name: None,
             },
         ],
@@ -115,29 +120,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ..Default::default()
     };
 
-    // Send the request and get a stream
-    let mut response_stream = request.stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY).await?;
+    // Send the request
+    let mut response_stream = request
+        .get_stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+        .await?;
 
-    while let Some(chunk) = response_stream.next().await {
-        let chunk_text = chunk?;
+    let mut message = String::new();
 
-        // Parse each streaming chunk
-        if let Ok(completion) = Completion::parse_string(&chunk_text) {
-            for choice in completion.choices {
-                if let Some(content) = choice.delta.content {
-                    match content {
-                        openai_interface::chat::response::streaming::CompletionContent::Content(text) => {
-                            print!("{}", text);
-                        }
-                        openai_interface::chat::response::streaming::CompletionContent::ReasoningContent(text) => {
-                            print!("[Reasoning] {}", text);
-                        }
-                    }
-                }
-            }
+    while let Some(chunk_result) = response_stream.next().await {
+        let chunk_string = chunk_result?;
+        if &chunk_string == "[DONE]" {
+            // SSE stream ends.
+            break;
         }
+        let chunk = ChatCompletionChunk::from_str(&chunk_string).unwrap();
+        let content: &String = match chunk.choices[0].delta.content.as_ref().unwrap() {
+            CompletionContent::Content(s) => s,
+            CompletionContent::ReasoningContent(s) => s,
+        };
+        println!("lib::test_streaming message: {}", content);
+        message.push_str(content);
     }
-    println!(); // New line after streaming completes
+
+    println!("lib::test_streaming message: {}", message);
     Ok(())
 }
 ```
