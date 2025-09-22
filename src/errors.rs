@@ -2,6 +2,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum RequestError {
+    #[error("Failed to send request: {0}")]
+    SendError(String),
+    #[error("Response error: {0}")]
+    ResponseError(String),
     #[error("Invalid response code: {0}")]
     ResponseCode(u16),
     #[error("Invalid response status: {0}")]
