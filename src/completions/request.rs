@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::rest::post::NoStream;
+use crate::rest::post::{NoStream, Post};
 
 #[derive(Debug, Serialize, Default)]
 pub struct CompletionRequest {
@@ -178,6 +178,12 @@ pub struct StreamOptions {
 pub enum StopKeywords {
     Word(String),
     Words(Vec<String>),
+}
+
+impl Post for CompletionRequest {
+    fn is_streaming(&self) -> bool {
+        self.stream
+    }
 }
 
 impl NoStream for CompletionRequest {}
