@@ -14,6 +14,12 @@ pub enum RequestError {
     SseParseError(String),
     #[error("{0}")]
     StreamError(String),
+    /// If the request is a streaming request, but the context is not streaming.
+    #[error("You cannot post a streaming request in a non-streaming context")]
+    NonStreamingViolation,
+    /// If the request is a non-streaming request, but the context is streaming.
+    #[error("You cannot post a non-streaming request in a streaming context")]
+    StreamingViolation,
 }
 
 #[derive(Debug, Error)]
