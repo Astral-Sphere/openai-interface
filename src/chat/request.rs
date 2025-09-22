@@ -539,7 +539,7 @@ mod request_test {
     const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 
     #[tokio::test]
-    async fn test_00_basics() {
+    async fn test_deepseek_no_stream() {
         let request = RequestBody {
             messages: vec![
                 Message::System {
@@ -567,7 +567,7 @@ mod request_test {
     }
 
     #[tokio::test]
-    async fn test_01_streaming() {
+    async fn test_deepseek_stream() {
         let request = RequestBody {
             messages: vec![
                 Message::System {
