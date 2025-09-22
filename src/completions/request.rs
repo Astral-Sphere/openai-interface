@@ -188,6 +188,8 @@ impl Post for CompletionRequest {
 
 impl NoStream for CompletionRequest {}
 
+impl Stream for CompletionRequest {}
+
 #[cfg(test)]
 mod tests {
     use std::sync::LazyLock;
