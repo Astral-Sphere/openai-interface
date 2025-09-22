@@ -161,6 +161,10 @@ You can customize whatever request parameters you want. If you need extra platfo
 ### Modules
 
 - [`chat`]: Contains all chat completion related structs, enums, and methods.
+- [`completion`]: Contains all completion related structs, enums, and methods.
+  Note that this API is getting deprecated in favour of `chat` and is only available
+  for out-dated LLM modules.
+- [`rest`]: Providing all REST related traits and methods.
 - [`errors`]: Defines error types used throughout the crate.
 
 ### Error Handling
