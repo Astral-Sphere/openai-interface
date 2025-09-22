@@ -202,7 +202,7 @@ mod tests {
         LazyLock::new(|| include_str!("../../keys/modelstudio_domestic_key").trim());
 
     #[tokio::test]
-    async fn test_qwen_completions() -> Result<(), anyhow::Error> {
+    async fn test_qwen_completions_no_stream() -> Result<(), anyhow::Error> {
         let request_body = CompletionRequest {
             model: QWEN_MODEL.to_string(),
             prompt: Prompt::PromptString(
