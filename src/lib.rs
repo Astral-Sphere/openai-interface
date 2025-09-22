@@ -147,6 +147,7 @@
 pub mod chat;
 pub mod completions;
 pub mod errors;
+pub mod rest;
 
 #[cfg(test)]
 mod tests {
