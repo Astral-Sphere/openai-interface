@@ -6,6 +6,13 @@ and non-streaming APIs are supported.
 Currently only chat completion is supported. FIM completion, image generation,
 etc. are still in development.
 
+> Repository:
+>
+> [GitCode Repo](https://github.com/Astral-Sphere/openai-interface)  
+> [GitHub Repo](https://github.com/Astral-Sphere/openai-interface)
+>
+> You are welcomed to contribute to this project through any one of the links.
+
 ## Features
 
 - **Chat Completions**: Full support for OpenAI's chat completion API, including both streaming and non-streaming responses
