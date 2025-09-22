@@ -2,7 +2,9 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
+use crate::rest::post::NoStream;
+
+#[derive(Debug, Serialize, Default)]
 pub struct CompletionRequest {
     /// ID of the model to use. Note that not all models are supported for completion.
     pub model: String,
@@ -142,6 +144,11 @@ pub enum Prompt {
     TokensArray(Vec<usize>),
     /// Array of arrays of tokens
     TokenArraysArray(Vec<Vec<usize>>),
+}
+impl Default for Prompt {
+    fn default() -> Self {
+        Self::PromptString("".to_string())
+    }
 }
 
 #[derive(Debug, Serialize)]
