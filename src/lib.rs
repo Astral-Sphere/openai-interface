@@ -13,11 +13,6 @@
 //! - **Async/Await**: Built with async/await support for efficient asynchronous operations
 //! - **Musl Support**: Designed to work with musl libc for lightweight deployments
 //!
-//! # Modules
-//!
-//! - [`chat`]: Contains all chat completion related structs, enums and methods.
-//! - [`errors`]: Defines error types used throughout the crate
-//!
 //! # Examples
 //!
 //! ## Non-streaming Chat Completion
