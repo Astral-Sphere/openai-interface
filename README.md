@@ -34,7 +34,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-openai-interface = "0.4.0-alpha.1"
+openai-interface = "0.4.0-alpha.2"
 ```
 
 ## Usage
