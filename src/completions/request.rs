@@ -186,9 +186,13 @@ impl Post for CompletionRequest {
     }
 }
 
-impl NoStream for CompletionRequest {}
+impl NoStream for CompletionRequest {
+    type Response = super::response::Completion;
+}
 
-impl Stream for CompletionRequest {}
+impl Stream for CompletionRequest {
+    type Response = super::response::Completion;
+}
 
 #[cfg(test)]
 mod tests {
@@ -288,7 +292,9 @@ mod tests {
             ..Default::default()
         };
 
-        let result = request_body.get_response(QWEN_URL, *QWEN_API_KEY).await?;
+        let result = request_body
+            .get_response_string(QWEN_URL, *QWEN_API_KEY)
+            .await?;
         println!("{}", result);
 
         Ok(())
@@ -380,7 +386,7 @@ mod tests {
         };
 
         let mut stream = request_body
-            .get_stream_response(QWEN_URL, *QWEN_API_KEY)
+            .get_stream_response_string(QWEN_URL, *QWEN_API_KEY)
             .await?;
 
         while let Some(chunk) = stream.next().await {

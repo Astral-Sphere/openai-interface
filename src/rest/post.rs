@@ -1,7 +1,7 @@
-use std::future::Future;
+use std::{future::Future, str::FromStr};
 
-use futures_util::{TryStreamExt, stream::BoxStream};
-use serde::Serialize;
+use futures_util::{StreamExt, TryStreamExt, stream::BoxStream};
+use serde::{Serialize, de::DeserializeOwned};
 
 use crate::errors::OapiError;
 
@@ -10,8 +10,10 @@ pub trait Post {
 }
 
 pub trait NoStream: Post + Serialize + Sync + Send {
+    type Response: DeserializeOwned + FromStr<Err = OapiError> + Send + Sync;
+
     /// Sends a POST request to the specified URL with the provided api-key.
-    fn get_response(
+    fn get_response_string(
         &self,
         url: &str,
         key: &str,
@@ -49,9 +51,23 @@ pub trait NoStream: Post + Serialize + Sync + Send {
             Ok(text)
         }
     }
+
+    fn get_response(
+        &self,
+        url: &str,
+        key: &str,
+    ) -> impl Future<Output = Result<Self::Response, OapiError>> + Send + Sync {
+        async move {
+            let text = self.get_response_string(url, key).await?;
+            let result = Self::Response::from_str(&text)?;
+            Ok(result)
+        }
+    }
 }
 
 pub trait Stream: Post + Serialize + Sync + Send {
+    type Response: DeserializeOwned + FromStr<Err = OapiError> + Send + Sync;
+
     /// Sends a streaming POST request to the specified URL with the provided api-key.
     ///
     /// # Example
@@ -86,7 +102,7 @@ pub trait Stream: Post + Serialize + Sync + Send {
     ///     };
     ///
     ///     let mut response = request
-    ///         .get_stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+    ///         .get_stream_response_string(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
     ///         .await
     ///         .unwrap();
     ///
@@ -95,7 +111,7 @@ pub trait Stream: Post + Serialize + Sync + Send {
     ///     }
     /// }
     /// ```
-    fn get_stream_response(
+    fn get_stream_response_string(
         &self,
         url: &str,
         api_key: &str,
@@ -210,6 +226,31 @@ pub trait Stream: Post + Serialize + Sync + Send {
             );
 
             Ok(Box::pin(stream) as BoxStream<'static, _>)
+        }
+    }
+
+    fn get_stream_response(
+        &self,
+        url: &str,
+        api_key: &str,
+    ) -> impl Future<
+        Output = Result<BoxStream<'static, Result<Self::Response, OapiError>>, OapiError>,
+    > + Send
+    + Sync {
+        async move {
+            let stream = self.get_stream_response_string(url, api_key).await?;
+
+            let parsed_stream = stream
+                .take_while(|result| {
+                    let should_continue = match result {
+                        Ok(data) => data != "[DONE]",
+                        Err(_) => true, // 继续传播错误
+                    };
+                    async move { should_continue }
+                })
+                .and_then(|data| async move { Self::Response::from_str(&data) });
+
+            Ok(Box::pin(parsed_stream) as BoxStream<'static, _>)
         }
     }
 }

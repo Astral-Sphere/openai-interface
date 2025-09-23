@@ -38,7 +38,7 @@ use crate::rest::post::{NoStream, Post, Stream};
 ///     };
 ///
 ///     let mut response = request
-///         .get_stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+///         .get_stream_response_string(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
 ///         .await
 ///         .unwrap();
 ///
@@ -521,9 +521,13 @@ impl Post for RequestBody {
     }
 }
 
-impl NoStream for RequestBody {}
+impl NoStream for RequestBody {
+    type Response = super::response::no_streaming::ChatCompletion;
+}
 
-impl Stream for RequestBody {}
+impl Stream for RequestBody {
+    type Response = super::response::streaming::ChatCompletionChunk;
+}
 
 #[cfg(test)]
 mod request_test {
@@ -557,7 +561,7 @@ mod request_test {
         };
 
         let response = request
-            .get_response(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY)
+            .get_response_string(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY)
             .await
             .unwrap();
 
@@ -585,7 +589,7 @@ mod request_test {
         };
 
         let mut response = request
-            .get_stream_response(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+            .get_stream_response_string(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
             .await
             .unwrap();
 
