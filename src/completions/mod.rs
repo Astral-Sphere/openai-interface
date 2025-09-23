@@ -5,3 +5,4 @@
 //! `chat` API.
 
 pub mod request;
+pub mod response;
