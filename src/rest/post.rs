@@ -115,13 +115,12 @@ pub trait Stream: Post + Serialize + Sync + Send {
         &self,
         url: &str,
         api_key: &str,
-    ) -> impl Future<
-        Output = Result<BoxStream<'static, Result<String, anyhow::Error>>, anyhow::Error>,
-    > + Send
+    ) -> impl Future<Output = Result<BoxStream<'static, Result<String, OapiError>>, OapiError>>
+    + Send
     + Sync {
         async move {
             if !self.is_streaming() {
-                return Err(anyhow::Error::from(RequestError::StreamingViolation));
+                return Err(OapiError::StreamingViolation);
             }
 
             let client = reqwest::Client::new();
@@ -138,7 +137,7 @@ pub trait Stream: Post + Serialize + Sync + Send {
                 .json(self)
                 .send()
                 .await
-                .map_err(|e| anyhow::anyhow!("Failed to send request: {}", e))?;
+                .map_err(|e| OapiError::ResponseError(format!("Failed to send request: {}", e)))?;
 
             if !response.status().is_success() {
                 return Err(OapiError::ResponseStatus(response.status().as_u16()).into());
@@ -216,7 +215,7 @@ pub trait Stream: Post + Serialize + Sync + Send {
                             }
                             Err(e) => {
                                 return Some((
-                                    Err(anyhow::anyhow!("Stream error: {}", e).into()),
+                                    Err(OapiError::StreamError(format!("Stream error: {}", e))),
                                     (stream, buffer),
                                 ));
                             }
