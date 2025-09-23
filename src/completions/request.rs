@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::rest::post::{NoStream, Post, Stream};
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Default, Clone)]
 pub struct CompletionRequest {
     /// ID of the model to use. Note that not all models are supported for completion.
     pub model: String,
@@ -133,7 +133,7 @@ pub struct CompletionRequest {
     pub extra_body: serde_json::Map<String, serde_json::Value>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum Prompt {
     /// String
@@ -151,7 +151,7 @@ impl Default for Prompt {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct StreamOptions {
     /// When true, stream obfuscation will be enabled.
     ///
@@ -173,7 +173,7 @@ pub struct StreamOptions {
     pub include_usage: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum StopKeywords {
     Word(String),
