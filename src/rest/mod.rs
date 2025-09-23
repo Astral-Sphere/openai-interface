@@ -17,12 +17,31 @@
 //!
 //! ```rust
 //! use openai_interface::rest::post::{NoStream, Stream};
-//! use serde::Serialize;
+//! use openai_interface::errors::OapiError;
+//! use serde::{Serialize, Deserialize};
+//!
+//! use std::str::FromStr;
 //!
 //! #[derive(Serialize)]
 //! struct MyRequest {
 //!     prompt: String,
 //!     stream: bool,
+//! }
+//!
+//! #[derive(Deserialize)]
+//! struct MyResponse {
+//!     // Define the fields of your response here
+//!     id: String,
+//! }
+//!
+//! impl FromStr for MyResponse {
+//!     type Err = OapiError;
+//!
+//!     fn from_str(content: &str) -> Result<Self, Self::Err> {
+//!         let parse_result: Result<Self, _> = serde_json::from_str(content)
+//!             .map_err(|e| OapiError::DeserializationError(e.to_string()));
+//!         parse_result
+//!     }
 //! }
 //!
 //! impl openai_interface::rest::post::Post for MyRequest {
@@ -31,7 +50,9 @@
 //!     }
 //! }
 //!
-//! impl NoStream for MyRequest {}
+//! impl NoStream for MyRequest {
+//!     type Response = MyResponse;
+//! }
 //! // or impl Stream for MyRequest {} for streaming requests
 //! ```
 
