@@ -5,7 +5,7 @@ use serde::Deserialize;
 use crate::errors::OapiError;
 
 /// The streaming and non-streaming completion response shares the same json structure.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Completion {
     /// A unique identifier for the completion.
     pub id: String,
@@ -26,7 +26,7 @@ pub struct Completion {
     pub usage: Option<CompletionUsage>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Logprobs {
     /// The offset into the generated text for each token.
     pub text_offset: Option<Vec<usize>>,
@@ -38,7 +38,7 @@ pub struct Logprobs {
     pub top_logprobs: Option<Vec<HashMap<String, f32>>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CompletionChoice {
     /// The reason the model stopped generating tokens.
     pub finish_reason: Option<String>,
@@ -50,7 +50,7 @@ pub struct CompletionChoice {
     pub text: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CompletionTokensDetails {
     /// When using Predicted Outputs, the number of tokens in the prediction that
     /// appeared in the completion.
@@ -69,7 +69,7 @@ pub struct CompletionTokensDetails {
     pub rejected_prediction_tokens: Option<usize>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct PromptTokensDetails {
     /// Audio input tokens present in the prompt.
     pub audio_tokens: Option<usize>,
@@ -78,7 +78,7 @@ pub struct PromptTokensDetails {
     pub cached_tokens: Option<usize>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CompletionUsage {
     /// Number of tokens in the generated completion.
     pub completion_tokens: usize,
