@@ -22,7 +22,6 @@
 //! use openai_interface::chat::request::{Message, RequestBody};
 //! use openai_interface::chat::response::no_streaming::ChatCompletion;
 //! use openai_interface::rest::post::NoStream;
-//! use std::str::FromStr;
 //!
 //! // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
 //! const DEEPSEEK_API_KEY: LazyLock<&str> =
@@ -49,10 +48,9 @@
 //!     };
 //!
 //!     // Send the request
-//!     let response: String = request
+//!     let chat_completion: ChatCompletion = request
 //!         .get_response(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY)
 //!         .await?;
-//!     let chat_completion = ChatCompletion::from_str(&response).unwrap();
 //!     let text = chat_completion.choices[0]
 //!         .message
 //!         .content
@@ -71,7 +69,6 @@
 //! use openai_interface::rest::post::Stream;
 //! use futures_util::StreamExt;
 //!
-//! use std::str::FromStr;
 //! use std::sync::LazyLock;
 //!
 //! // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
@@ -106,17 +103,8 @@
 //!     let mut message = String::new();
 //!
 //!     while let Some(chunk_result) = response_stream.next().await {
-//!         let chunk_string = chunk_result?;
-//!         // let json_string = chunk_string.strip_prefix("data: ").unwrap();
-//!         // if json_string == "[DONE]" {
-//!         //     break;
-//!         // }
-//!         if &chunk_string == "[DONE]" {
-//!             // SSE stream ends.
-//!             break;
-//!         }
-//!         let chunk = ChatCompletionChunk::from_str(&chunk_string).unwrap();
-//!         let content: &String = match chunk.choices[0].delta.content.as_ref().unwrap() {
+//!         let chunk: ChatCompletionChunk = chunk_result?;
+//!         let content = match chunk.choices[0].delta.content.as_ref().unwrap() {
 //!             CompletionContent::Content(s) => s,
 //!             CompletionContent::ReasoningContent(s) => s,
 //!         };
@@ -153,7 +141,6 @@ mod tests {
     use crate::chat::response::streaming::{ChatCompletionChunk, CompletionContent};
     use crate::rest::post::{NoStream, Stream};
     use futures_util::StreamExt;
-    use std::str::FromStr;
     use std::sync::LazyLock;
 
     // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
@@ -181,10 +168,9 @@ mod tests {
         };
 
         // Send the request
-        let response: String = request
+        let chat_completion: ChatCompletion = request
             .get_response(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY)
             .await?;
-        let chat_completion = ChatCompletion::from_str(&response).unwrap();
         let text = chat_completion.choices[0]
             .message
             .content
@@ -220,16 +206,7 @@ mod tests {
         let mut message = String::new();
 
         while let Some(chunk_result) = response_stream.next().await {
-            let chunk_string = chunk_result?;
-            // let json_string = chunk_string.strip_prefix("data: ").unwrap();
-            // if json_string == "[DONE]" {
-            //     break;
-            // }
-            if &chunk_string == "[DONE]" {
-                // SSE stream ends.
-                break;
-            }
-            let chunk = ChatCompletionChunk::from_str(&chunk_string).unwrap();
+            let chunk: ChatCompletionChunk = chunk_result?;
             let content = match chunk.choices[0].delta.content.as_ref().unwrap() {
                 CompletionContent::Content(s) => s,
                 CompletionContent::ReasoningContent(s) => s,
