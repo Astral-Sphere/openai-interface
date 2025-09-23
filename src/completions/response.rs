@@ -41,7 +41,7 @@ pub struct Logprobs {
 #[derive(Debug, Deserialize)]
 pub struct CompletionChoice {
     /// The reason the model stopped generating tokens.
-    pub finish_reason: String,
+    pub finish_reason: Option<String>,
     /// The index of this choice in the array of choices.
     pub index: usize,
     /// The log probabilities for each token in the generated text.
