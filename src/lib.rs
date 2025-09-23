@@ -1,8 +1,8 @@
 //! A low-level Rust interface for interacting with OpenAI's API.
 //!
-//! This crate provides a simple, efficient but low-level way to interact with OpenAI's API,
-//! supporting both streaming and non-streaming responses. It utilizes Rust's powerful type
-//! system.
+//! This crate provides a simple, efficient, and low-level way to interact with OpenAI's API,
+//! supporting both streaming and non-streaming responses. It leverages Rust's powerful type
+//! system for safety and performance, while exposing the full flexibility of the API.
 //!
 //! # Features
 //!
@@ -16,6 +16,8 @@
 //! # Examples
 //!
 //! ## Non-streaming Chat Completion
+//!
+//! This example demonstrates how to make a non-streaming request to the chat completion API.
 //!
 //! ```rust
 //! use std::sync::LazyLock;
@@ -62,6 +64,9 @@
 //! ```
 //!
 //! ## Streaming Chat Completion
+//!
+//! This example demonstrates how to handle streaming responses from the API. As with the non-streaming
+//! example, all API parameters can be adjusted directly through the request struct.
 //!
 //! ```rust
 //! use openai_interface::chat::response::streaming::{CompletionContent, ChatCompletionChunk};
@@ -119,9 +124,9 @@
 //!
 //! # Musl Build
 //!
-//! This crate is designed to adapt with the musl libc, making it suitable for
+//! This crate is designed to work with musl libc, making it suitable for
 //! lightweight deployments in containerized environments. Longer compile times
-//! may be required, for openssl is needed to be built from source.
+//! may be required as OpenSSL needs to be built from source.
 //!
 //! To build for musl:
 //! ```bash
