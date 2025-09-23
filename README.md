@@ -8,7 +8,7 @@ and other features are still in development.
 
 > Repository:
 >
-> [GitCode Repo](https://github.com/Astral-Sphere/openai-interface)  
+> [GitCode Repo](https://github.com/Astral-Sphere/openai-interface)
 > [GitHub Repo](https://github.com/Astral-Sphere/openai-interface)
 >
 > You are welcome to contribute to this project through any of the links above.
@@ -34,7 +34,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-openai-interface = "0.4.0-alpha.2"
+openai-interface = "0.4"
 ```
 
 ## Usage
