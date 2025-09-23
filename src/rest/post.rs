@@ -18,7 +18,7 @@ pub trait NoStream: Post + Serialize + Sync + Send {
     ) -> impl Future<Output = Result<String, RequestError>> + Send + Sync {
         async move {
             if self.is_streaming() {
-                return Err(RequestError::StreamingViolation);
+                return Err(RequestError::NonStreamingViolation);
             }
 
             let client = reqwest::Client::new();
