@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum RequestError {
+pub enum OapiError {
     #[error("Failed to send request: {0}")]
     SendError(String),
     #[error("Response error: {0}")]
@@ -20,10 +20,6 @@ pub enum RequestError {
     /// If the request is a non-streaming request, but the context is streaming.
     #[error("You cannot post a non-streaming request in a streaming context")]
     StreamingViolation,
-}
-
-#[derive(Debug, Error)]
-pub enum ResponseError {
-    #[error("Deserialization error:\n{0}\n\nPlease report this error to the project issue.")]
+    #[error("Deserialization error:\n{0}\n\nPlease report this error in the project issue.")]
     DeserializationError(String),
 }
