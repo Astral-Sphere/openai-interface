@@ -1,24 +1,24 @@
-# openai-interface
+# OpenAI Interface
 
 A low-level Rust interface for interacting with OpenAI's API. Both streaming
 and non-streaming APIs are supported.
 
-Currently only chat completion is supported. FIM completion, image generation,
-etc. are still in development.
+Currently, only chat completion is supported. FIM completion, image generation,
+and other features are still in development.
 
 > Repository:
 >
 > [GitCode Repo](https://github.com/Astral-Sphere/openai-interface)  
 > [GitHub Repo](https://github.com/Astral-Sphere/openai-interface)
 >
-> You are welcomed to contribute to this project through any one of the links.
+> You are welcome to contribute to this project through any of the links above.
 
 ## Features
 
 - **Chat Completions**: Full support for OpenAI's chat completion API, including both streaming and non-streaming responses
 - **Streaming and Non-streaming**: Support for both streaming and non-streaming responses
 - **Strong Typing**: Complete type definitions for all API requests and responses,
-  utilizing Rust's powerful typing system
+  utilizing Rust's powerful type system
 - **Error Handling**: Comprehensive error handling with detailed error types defined in the [`errors`] module
 - **Async/Await**: Built with async/await support
 - **Musl Support**: Designed to work with musl libc out-of-the-box
@@ -26,9 +26,9 @@ etc. are still in development.
 
 ## Installation
 
-> [!WARNING] Versions prior to 0.3.0 has serious issues on processing SSE streaming responses.
-> Instead of a single chunk, chances are that multiple chunks will be returned in each iteration
-> of `chat::request::ChatCompletion::get_streaming_response`.
+> [!WARNING] Versions prior to 0.3.0 have serious issues with SSE streaming responses processing.
+> Instead of a single chunk, multiple chunks may be returned in each iteration
+> of `chat::request::ChatCompletion::get_streaming_response_string`.
 
 Add this to your `Cargo.toml`:
 
@@ -155,8 +155,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #### Custom Request Parameters
 
-You can customize whatever request parameters you want. If you need extra platform
--specific fields, find them in `extra_body`, or add them to `extra_body_map`.
+You can customize request parameters as needed. If you require provider-specific
+fields, you can add them to `extra_body` or `extra_body_map`.
 
 ### Modules
 
@@ -169,14 +169,14 @@ You can customize whatever request parameters you want. If you need extra platfo
 
 ### Error Handling
 
-All errors are converted into `crate::error::RequestError` or
+All errors are converted into either `crate::error::OapiError` or
 `crate::error::ResponseError`.
 
 ## Musl Build
 
-This crate is designed to adapt with the musl libc, making it suitable for
+This crate is designed to work with musl libc, making it suitable for
 lightweight deployments in containerized environments. Longer compile times
-may be required, for openssl is needed to be built from source.
+may be required as OpenSSL needs to be built from source.
 
 To build for musl:
 
@@ -187,10 +187,10 @@ cargo build --target x86_64-unknown-linux-musl
 
 ## Supported Providers
 
-This crate aims to support standard OpenAI-compatible API endpoints. Sadly, the People's
-Republic of China is blocked by the OpenAI website, and I can only refer to Manuals from
-DeepSeek and Qwen. Please open an issue if there are any mistakes or inaccuracies in my
-implementation.
+This crate aims to support standard OpenAI-compatible API endpoints. Unfortunately, OpenAI
+aggressively restricts the access from the People's Republic of China. As a result, the
+implementation has been tested primarily with DeepSeek and Qwen. Please open an issue if you
+find any mistakes or inaccuracies in the implementation.
 
 ## Contributing
 
