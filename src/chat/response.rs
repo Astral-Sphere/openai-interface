@@ -3,7 +3,7 @@ pub mod streaming {
 
     use serde::Deserialize;
 
-    use crate::errors::ResponseError;
+    use crate::errors::OapiError;
 
     #[derive(Debug, Deserialize)]
     pub struct ChatCompletionChunk {
@@ -248,11 +248,11 @@ pub mod streaming {
     }
 
     impl FromStr for ChatCompletionChunk {
-        type Err = crate::errors::ResponseError;
+        type Err = crate::errors::OapiError;
 
         fn from_str(content: &str) -> Result<Self, Self::Err> {
             let parse_result: Result<ChatCompletionChunk, _> = serde_json::from_str(content)
-                .map_err(|e| ResponseError::DeserializationError(e.to_string()));
+                .map_err(|e| OapiError::DeserializationError(e.to_string()));
             parse_result
         }
     }
@@ -325,7 +325,7 @@ pub mod no_streaming {
 
     use serde::Deserialize;
 
-    use crate::errors::ResponseError;
+    use crate::errors::OapiError;
 
     #[derive(Debug, Deserialize)]
     pub struct ChatCompletion {
@@ -569,11 +569,11 @@ pub mod no_streaming {
     }
 
     impl FromStr for ChatCompletion {
-        type Err = crate::errors::ResponseError;
+        type Err = crate::errors::OapiError;
 
         fn from_str(content: &str) -> Result<Self, Self::Err> {
             let parse_result: Result<ChatCompletion, _> = serde_json::from_str(content)
-                .map_err(|e| ResponseError::DeserializationError(e.to_string()));
+                .map_err(|e| OapiError::DeserializationError(e.to_string()));
             parse_result
         }
     }
