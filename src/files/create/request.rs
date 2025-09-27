@@ -62,6 +62,8 @@ pub enum FilePurpose {
     UserData,
     #[serde(rename = "evals")]
     Evals,
+    #[serde(untagged)]
+    Other(String),
 }
 
 // #[derive(Debug, Serialize, Clone)]

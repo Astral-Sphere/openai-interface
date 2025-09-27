@@ -56,6 +56,8 @@ pub enum FilePurpose {
     Vision,
     #[serde(rename = "user_data")]
     UserData,
+    #[serde(untagged)]
+    Other(String),
 }
 
 impl FromStr for FileObject {
