@@ -23,9 +23,13 @@ mod tests {
             ..Default::default()
         };
 
-        let _response = create_file_request
+        let response = create_file_request
             .get_response(MODELSCOPE_URL, MODELSCOPE_KEY.as_ref())
             .await?;
+
+        println!("Uploaded file ID: {}", response.id);
+        println!("File size: {} bytes", response.bytes);
+        println!("Filename: {}", response.filename);
 
         Ok(())
     }
