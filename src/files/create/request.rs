@@ -47,11 +47,12 @@ pub struct CreateFileRequest {
     pub extra_body: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Default)]
 pub enum FilePurpose {
     #[serde(rename = "assistant")]
     Assistant,
     #[serde(rename = "batch")]
+    #[default]
     Batch,
     #[serde(rename = "fine-tune")]
     FineTune,
