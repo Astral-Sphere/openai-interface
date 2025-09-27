@@ -27,7 +27,7 @@ use crate::rest::post::{NoStream, Post};
 ///
 /// Please [contact OpenAI](https://help.openai.com/) if you need to increase these
 /// storage limits.
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Default)]
 pub struct CreateFileRequest {
     /// The File object (not file name) to be uploaded.
     #[serde(skip_serializing)]
