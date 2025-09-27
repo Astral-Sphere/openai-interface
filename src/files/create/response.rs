@@ -27,6 +27,7 @@ pub struct FileObject {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum FileStatus {
     Uploaded,
     Processed,
