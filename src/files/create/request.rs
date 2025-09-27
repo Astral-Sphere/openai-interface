@@ -1,6 +1,9 @@
 use serde::Serialize;
+use std::future::Future;
+use std::path::PathBuf;
 
-use std::collections::HashMap;
+use crate::errors::OapiError;
+use crate::rest::post::{NoStream, Post};
 
 /// Upload a file that can be used across various endpoints.
 ///
@@ -86,4 +89,102 @@ pub enum ExpiresAfter {
         /// Must be between 3600 (1 hour) and 2592000 (30 days).
         seconds: usize,
     },
+}
+
+impl Post for CreateFileRequest {
+    #[inline]
+    fn is_streaming(&self) -> bool {
+        false
+    }
+}
+
+impl NoStream for CreateFileRequest {
+    type Response = super::response::FileObject;
+
+    // fn file_pathbuf(&self) -> PathBuf {
+    //     self.file.clone()
+    // }
+
+    /// Sends a file upload POST request using multipart/form-data format.
+    /// This implementation handles the actual file upload with proper file handling.
+    fn get_response_string(
+        &self,
+        url: &str,
+        key: &str,
+    ) -> impl Future<Output = Result<String, OapiError>> + Send + Sync {
+        async move {
+            if self.is_streaming() {
+                return Err(OapiError::NonStreamingViolation);
+            }
+
+            let client = reqwest::Client::new();
+
+            // Check if file exists
+            if !self.file.exists() {
+                return Err(OapiError::FileNotFoundError(self.file.clone()));
+            }
+
+            // Read file content
+            let file_content = tokio::fs::read(&self.file).await.map_err(|e| {
+                OapiError::ResponseError(format!(
+                    "Failed to read file {}: {}",
+                    self.file.display(),
+                    e
+                ))
+            })?;
+
+            // Get file name from path
+            let file_name = self
+                .file
+                .file_name()
+                .and_then(|name| name.to_str())
+                .ok_or_else(|| OapiError::ResponseError("Invalid file name".to_string()))?
+                .to_string();
+
+            // Create multipart form with file and purpose
+            let file_part =
+                reqwest::multipart::Part::bytes(file_content).file_name(file_name.clone());
+
+            let mut form = reqwest::multipart::Form::new().part("file", file_part);
+
+            // Add purpose field
+            let purpose_str = serde_json::to_string(&self.purpose).map_err(|e| {
+                OapiError::ResponseError(format!("Failed to serialize purpose: {}", e))
+            })?;
+            let trimmed_purpose = purpose_str.trim_matches('"').to_string();
+            form = form.text("purpose", trimmed_purpose);
+
+            // Add expires_after if present
+            if let Some(expires_after) = &self.expires_after {
+                let expires_str = serde_json::to_string(expires_after).map_err(|e| {
+                    OapiError::ResponseError(format!("Failed to serialize expires_after: {}", e))
+                })?;
+                form = form.text("expires_after", expires_str);
+            }
+
+            let response = client
+                .post(url)
+                .headers({
+                    let mut headers = reqwest::header::HeaderMap::new();
+                    headers.insert("Accept", "application/json".parse().unwrap());
+                    headers
+                })
+                .bearer_auth(key)
+                .multipart(form)
+                .send()
+                .await
+                .map_err(|e| OapiError::SendError(format!("Failed to send request: {:#?}", e)))?;
+
+            if response.status() != reqwest::StatusCode::OK {
+                return Err(OapiError::ResponseStatus(response.status().as_u16()).into());
+            }
+
+            let text = response.text().await.map_err(|e| {
+                OapiError::ResponseError(format!("Failed to get response text: {:#?}", e))
+            })?;
+
+            // let result = <Self::Response as FromStr>::from_str(&text)?;
+            Ok(text)
+        }
+    }
 }
