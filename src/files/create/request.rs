@@ -26,19 +26,51 @@ use std::collections::HashMap;
 /// storage limits.
 #[derive(Debug, Serialize, Clone)]
 pub struct CreateFileRequest {
-    file: FileTypes,
-    purpose: super::FilePurpose,
+    /// The File object (not file name) to be uploaded.
+    #[serde(skip_serializing)]
+    pub file: PathBuf,
+    /// The intended purpose of the uploaded file. One of: - `assistants`: Used in the
+    /// Assistants API - `batch`: Used in the Batch API - `fine-tune`: Used for
+    /// fine-tuning - `vision`: Images used for vision fine-tuning - `user_data`:
+    /// Flexible file type for any purpose - `evals`: Used for eval data sets
+    pub purpose: FilePurpose,
+    /// The expiration policy for a file. By default, files with `purpose=batch` expire
+    /// after 30 days and all other files are persisted until they are manually deleted.
+    ///
+    /// This parameter is not supported by Qwen is not tested.
     #[serde(skip_serializing_if = "Option::is_none")]
-    expires_after: Option<ExpiresAfter>,
+    pub expires_after: Option<ExpiresAfter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub extra_body: Option<serde_json::Map<String, serde_json::Value>>,
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub enum FileTypes {
-    FileContent(Vec<u8>),
-    FileNameAndContent(String, Vec<u8>),
-    FileNameAndContentAndType(String, Vec<u8>, String),
-    FileNameAndContentAndTypeAndHeaders(String, Vec<u8>, String, HashMap<String, String>),
+pub enum FilePurpose {
+    #[serde(rename = "assistant")]
+    Assistant,
+    #[serde(rename = "batch")]
+    Batch,
+    #[serde(rename = "fine-tune")]
+    FineTune,
+    #[serde(rename = "vision")]
+    Vision,
+    #[serde(rename = "user_data")]
+    UserData,
+    #[serde(rename = "evals")]
+    Evals,
 }
+
+// #[derive(Debug, Serialize, Clone)]
+// pub enum FileTypes {
+//     /// file (or bytes)
+//     FileContent(Vec<u8>),
+//     /// (filename, file (or bytes))
+//     FileNameAndContent(String, Vec<u8>),
+//     /// (filename, file (or bytes), content_type)
+//     FileNameAndContentAndType(String, Vec<u8>, String),
+//     /// (filename, file (or bytes), content_type, headers)
+//     FileNameAndContentAndTypeAndHeaders(String, Vec<u8>, String, HashMap<String, String>),
+// }
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "anchor", rename = "snake_case")]

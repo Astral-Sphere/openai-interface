@@ -15,7 +15,7 @@ pub struct FileObject {
     /// The intended purpose of the file.
     /// Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`,
     /// `fine-tune`, `fine-tune-results`, `vision`, and `user_data`.
-    pub purpose: super::FilePurpose,
+    pub purpose: FilePurpose,
     /// Deprecated. The current status of the file, which can be either `uploaded`,
     /// `processed`, or `error`.
     pub status: Option<FileStatus>,
@@ -32,4 +32,24 @@ pub enum FileStatus {
     Uploaded,
     Processed,
     Error,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub enum FilePurpose {
+    #[serde(rename = "assistant")]
+    Assistant,
+    #[serde(rename = "assistants_output")]
+    AssistantsOutput,
+    #[serde(rename = "batch")]
+    Batch,
+    #[serde(rename = "batch_output")]
+    BatchOutput,
+    #[serde(rename = "fine-tune")]
+    FineTune,
+    #[serde(rename = "fine-tune-results")]
+    FineTuneResults,
+    #[serde(rename = "vision")]
+    Vision,
+    #[serde(rename = "user_data")]
+    UserData,
 }
