@@ -26,4 +26,9 @@ pub enum OapiError {
     DeserializationError(String),
     #[error("File not found at: {0}")]
     FileNotFoundError(PathBuf),
+    #[error("Failed to read file: {0}")]
+    FileReadError(std::io::Error),
+
+    #[error("Not implemented")]
+    NotImplemented,
 }
