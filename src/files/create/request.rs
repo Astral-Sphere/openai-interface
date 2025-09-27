@@ -74,10 +74,16 @@ pub enum FilePurpose {
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "anchor", rename = "snake_case")]
-/// Anchor timestamp after which the expiration policy applies.
-/// Supported anchors: `created_at`.
+/// The expiration policy for a file.
+///
+/// By default, files with `purpose=batch` expire after 30 days and all other files
+/// are persisted until they are manually deleted.
 pub enum ExpiresAfter {
-    /// The number of seconds after the anchor time that the file will expire.
-    /// Must be between 3600 (1 hour) and 2592000 (30 days).
-    CreatedAt { seconds: usize },
+    /// Anchor timestamp after which the expiration policy applies.
+    /// Supported anchors: `created_at`.
+    CreatedAt {
+        /// The number of seconds after the anchor time that the file will expire.
+        /// Must be between 3600 (1 hour) and 2592000 (30 days).
+        seconds: usize,
+    },
 }
