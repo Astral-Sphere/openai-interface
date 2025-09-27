@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -22,4 +24,11 @@ pub enum OapiError {
     StreamingViolation,
     #[error("Deserialization error:\n{0}\n\nPlease report this error in the project issue.")]
     DeserializationError(String),
+    #[error("File not found at: {0}")]
+    FileNotFoundError(PathBuf),
+    #[error("Failed to read file: {0}")]
+    FileReadError(std::io::Error),
+
+    #[error("Not implemented")]
+    NotImplemented,
 }
