@@ -1,6 +1,6 @@
 [package]
 name = "openai-interface"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2024"
 authors = [
     "Yu Xiaosong <q5vsx3@163.com>", # 于小淞
@@ -17,7 +17,7 @@ categories = ["api-bindings", "web-programming"]
 anyhow = { version = "1.0.98", features = ["backtrace"] }
 thiserror = "2.0"
 
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.12", features = ["json", "stream", "multipart"] }
 tokio = { version = "1", features = ["full"] }
 futures-util = { version = "0.3" }
 eventsource-stream = "0.2"
