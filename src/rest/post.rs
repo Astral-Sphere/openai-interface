@@ -10,7 +10,7 @@ pub trait Post {
     fn is_streaming(&self) -> bool;
 }
 
-pub trait NoStream: Post + Serialize + Sync + Send {
+pub trait PostNoStream: Post + Serialize + Sync + Send {
     type Response: DeserializeOwned + FromStr<Err = OapiError> + Send + Sync;
 
     /// Sends a POST request to the specified URL with the provided api-key.
@@ -66,7 +66,7 @@ pub trait NoStream: Post + Serialize + Sync + Send {
     }
 }
 
-pub trait Stream: Post + Serialize + Sync + Send {
+pub trait PostStream: Post + Serialize + Sync + Send {
     type Response: DeserializeOwned + FromStr<Err = OapiError> + Send + Sync;
 
     /// Sends a streaming POST request to the specified URL with the provided api-key.
@@ -77,7 +77,7 @@ pub trait Stream: Post + Serialize + Sync + Send {
     /// use std::sync::LazyLock;
     /// use futures_util::StreamExt;
     /// use openai_interface::chat::request::{Message, RequestBody};
-    /// use openai_interface::rest::post::Stream;
+    /// use openai_interface::rest::post::PostStream;
     ///
     /// const DEEPSEEK_API_KEY: LazyLock<&str> =
     ///     LazyLock::new(|| include_str!("../.././keys/deepseek_domestic_key").trim());

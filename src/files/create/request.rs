@@ -1,9 +1,11 @@
+//! Create a `CreateFileRequest` object for uploading a file.
+
 use serde::Serialize;
 use std::future::Future;
 use std::path::PathBuf;
 
 use crate::errors::OapiError;
-use crate::rest::post::{NoStream, Post};
+use crate::rest::post::{Post, PostNoStream};
 
 /// Upload a file that can be used across various endpoints.
 ///
@@ -101,12 +103,8 @@ impl Post for CreateFileRequest {
     }
 }
 
-impl NoStream for CreateFileRequest {
-    type Response = super::response::FileObject;
-
-    // fn file_pathbuf(&self) -> PathBuf {
-    //     self.file.clone()
-    // }
+impl PostNoStream for CreateFileRequest {
+    type Response = crate::files::FileObject;
 
     /// Sends a file upload POST request using multipart/form-data format.
     /// This implementation handles the actual file upload with proper file handling.
@@ -186,7 +184,6 @@ impl NoStream for CreateFileRequest {
                 OapiError::ResponseError(format!("Failed to get response text: {:#?}", e))
             })?;
 
-            // let result = <Self::Response as FromStr>::from_str(&text)?;
             Ok(text)
         }
     }

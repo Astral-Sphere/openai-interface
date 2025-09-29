@@ -7,6 +7,7 @@
 //!
 //! The `rest` module contains:
 //! - [`post`]: HTTP POST request functionality with streaming and non-streaming support
+//! - [`get`]: HTTP GET request functionality with various parameter handling options
 //! - Traits for defining API request behavior
 //! - Error handling for HTTP communication
 //!
@@ -15,8 +16,10 @@
 //! The module is designed to be used through the higher-level API modules (`chat`, `completions`,
 //! etc.). However, you can use the traits directly if needed:
 //!
+//! ## POST Requests
+//!
 //! ```rust
-//! use openai_interface::rest::post::{NoStream, Stream};
+//! use openai_interface::rest::post::{Post, PostNoStream, PostStream};
 //! use openai_interface::errors::OapiError;
 //! use serde::{Serialize, Deserialize};
 //!
@@ -44,16 +47,63 @@
 //!     }
 //! }
 //!
-//! impl openai_interface::rest::post::Post for MyRequest {
+//! impl Post for MyRequest {
 //!     fn is_streaming(&self) -> bool {
 //!         self.stream
 //!     }
 //! }
 //!
-//! impl NoStream for MyRequest {
+//! impl PostNoStream for MyRequest {
 //!     type Response = MyResponse;
 //! }
-//! // or impl Stream for MyRequest {} for streaming requests
+//! // or impl PostStream for MyRequest {} for streaming requests
+//! ```
+//!
+//! ## GET Requests
+//!
+//! ```rust
+//! use openai_interface::rest::get::{Get, GetNoStream};
+//! use openai_interface::errors::OapiError;
+//! use serde::Deserialize;
+//!
+//! use std::str::FromStr;
+//!
+//! #[derive(Deserialize)]
+//! struct MyResponse {
+//!     id: String,
+//!     name: String,
+//! }
+//!
+//! impl FromStr for MyResponse {
+//!     type Err = OapiError;
+//!
+//!     fn from_str(content: &str) -> Result<Self, Self::Err> {
+//!         let parse_result: Result<Self, _> = serde_json::from_str(content)
+//!             .map_err(|e| OapiError::DeserializationError(e.to_string()));
+//!         parse_result
+//!     }
+//! }
+//!
+//! // GET request with URL building
+//! struct ComplexRequest {
+//!     resource_id: String,
+//!     limit: Option<u32>,
+//! }
+//!
+//! impl Get for ComplexRequest {
+//!     fn build_url(&self, base_url: &str) -> String {
+//!         let mut url = format!("{}/{}", base_url, self.resource_id);
+//!         if let Some(limit) = self.limit {
+//!             url.push_str(&format!("?limit={}", limit));
+//!         }
+//!         url
+//!     }
+//! }
+//!
+//! impl GetNoStream for ComplexRequest {
+//!     type Response = MyResponse;
+//! }
 //! ```
 
+pub mod get;
 pub mod post;

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::rest::post::{NoStream, Post, Stream};
+use crate::rest::post::{Post, PostNoStream, PostStream};
 
 #[derive(Debug, Serialize, Default, Clone)]
 pub struct CompletionRequest {
@@ -186,11 +186,11 @@ impl Post for CompletionRequest {
     }
 }
 
-impl NoStream for CompletionRequest {
+impl PostNoStream for CompletionRequest {
     type Response = super::response::Completion;
 }
 
-impl Stream for CompletionRequest {
+impl PostStream for CompletionRequest {
     type Response = super::response::Completion;
 }
 

@@ -12,13 +12,6 @@
 //! - Support for multipart/form-data file uploads
 //! - Comprehensive error handling for file operations
 //!
-//! # Features
-//!
-//! - **File Upload**: Upload files up to 512 MB in size
-//! - **Multiple Purposes**: Support for various file purposes (assistants, batch, fine-tune, etc.)
-//! - **Expiration Policies**: Configurable file expiration policies
-//! - **Multipart Uploads**: Proper handling of multipart/form-data requests
-//!
 //! # Examples
 //!
 //! ## Basic File Upload
@@ -29,8 +22,8 @@
 //! use std::path::PathBuf;
 //! use std::sync::LazyLock;
 //! use openai_interface::files::create::request::{CreateFileRequest, FilePurpose};
-//! use openai_interface::files::create::response::FileObject;
-//! use openai_interface::rest::post::NoStream;
+//! use openai_interface::files::FileObject;
+//! use openai_interface::rest::post::PostNoStream;
 //!
 //! const MODELSCOPE_URL: &str = "https://dashscope.aliyuncs.com/compatible-mode/v1/files";
 //! const MODELSCOPE_KEY: LazyLock<&str> =
@@ -64,8 +57,8 @@
 //! use std::path::PathBuf;
 //! use std::sync::LazyLock;
 //! use openai_interface::files::create::request::{CreateFileRequest, FilePurpose};
-//! use openai_interface::files::create::response::FileObject;
-//! use openai_interface::rest::post::NoStream;
+//! use openai_interface::files::FileObject;
+//! use openai_interface::rest::post::PostNoStream;
 //!
 //! const MODELSCOPE_URL: &str = "https://dashscope.aliyuncs.com/compatible-mode/v1/files";
 //! const MODELSCOPE_KEY: LazyLock<&str> =
@@ -76,6 +69,7 @@
 //!     let file_path = PathBuf::from("src/files/create/file-test.txt");
 //!     let create_file_request = CreateFileRequest {
 //!         file: file_path,
+//!         // This parameter is valid only for Qwen
 //!         purpose: FilePurpose::Other("file-extract".to_string()),
 //!         ..Default::default()
 //!     };
@@ -88,42 +82,14 @@
 //!     Ok(())
 //! }
 //! ```
-//!
-//! # File Size Limits
-//!
-//! - Individual files can be up to 512 MB
-//! - Total organization storage can be up to 1 TB
-//! - Batch API files are limited to 200 MB
-//! - Fine-tuning API only supports `.jsonl` files
-//!
-//! # Supported File Purposes
-//!
-//! - `assistants`: Used in the Assistants API
-//! - `batch`: Used in the Batch API (expires after 30 days by default)
-//! - `fine-tune`: Used for fine-tuning
-//! - `vision`: Images used for vision fine-tuning
-//! - `user_data`: Flexible file type for any purpose
-//! - `evals`: Used for eval data sets
-//! - Custom purposes via the `Other` variant
-//!
-//! # Error Handling
-//!
-//! The module provides comprehensive error handling for:
-//! - File not found errors
-//! - File read permissions
-//! - Network connectivity issues
-//! - API authentication failures
-//! - Invalid file formats
-//! - Size limit violations
 
 pub mod request;
-pub mod response;
 
 #[cfg(test)]
 mod tests {
     use std::{path::PathBuf, sync::LazyLock};
 
-    use crate::rest::post::NoStream;
+    use crate::rest::post::PostNoStream;
 
     use super::*;
 
