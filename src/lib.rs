@@ -13,6 +13,15 @@
 //! - **Async/Await**: Built with async/await support for efficient asynchronous operations
 //! - **Musl Support**: Designed to work with musl libc for lightweight deployments
 //!
+//! ## Implemented APIs
+//!
+//! - Chat Completions
+//! - Completions
+//!
+//! ## Developing
+//!
+//! - Files
+//!
 //! # Examples
 //!
 //! ## Non-streaming Chat Completion
@@ -23,7 +32,7 @@
 //! use std::sync::LazyLock;
 //! use openai_interface::chat::request::{Message, RequestBody};
 //! use openai_interface::chat::response::no_streaming::ChatCompletion;
-//! use openai_interface::rest::post::NoStream;
+//! use openai_interface::rest::post::PostNoStream;
 //!
 //! // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
 //! const DEEPSEEK_API_KEY: LazyLock<&str> =
@@ -71,7 +80,7 @@
 //! ```rust
 //! use openai_interface::chat::response::streaming::{CompletionContent, ChatCompletionChunk};
 //! use openai_interface::chat::request::{Message, RequestBody};
-//! use openai_interface::rest::post::Stream;
+//! use openai_interface::rest::post::PostStream;
 //! use futures_util::StreamExt;
 //!
 //! use std::sync::LazyLock;
@@ -145,7 +154,7 @@ mod tests {
     use crate::chat::request::{Message, RequestBody};
     use crate::chat::response::no_streaming::ChatCompletion;
     use crate::chat::response::streaming::{ChatCompletionChunk, CompletionContent};
-    use crate::rest::post::{NoStream, Stream};
+    use crate::rest::post::{PostNoStream, PostStream};
     use futures_util::StreamExt;
     use std::sync::LazyLock;
 

@@ -2,7 +2,7 @@
 
 use serde::Serialize;
 
-use crate::rest::post::{NoStream, Post, Stream};
+use crate::rest::post::{Post, PostNoStream, PostStream};
 
 /// Creates a model response for the given chat conversation.
 ///
@@ -12,7 +12,7 @@ use crate::rest::post::{NoStream, Post, Stream};
 /// use std::sync::LazyLock;
 /// use futures_util::StreamExt;
 /// use openai_interface::chat::request::{Message, RequestBody};
-/// use openai_interface::rest::post::Stream;
+/// use openai_interface::rest::post::PostStream;
 ///
 /// const DEEPSEEK_API_KEY: LazyLock<&str> =
 ///     LazyLock::new(|| include_str!("../.././keys/deepseek_domestic_key").trim());
@@ -521,11 +521,11 @@ impl Post for RequestBody {
     }
 }
 
-impl NoStream for RequestBody {
+impl PostNoStream for RequestBody {
     type Response = super::response::no_streaming::ChatCompletion;
 }
 
-impl Stream for RequestBody {
+impl PostStream for RequestBody {
     type Response = super::response::streaming::ChatCompletionChunk;
 }
 

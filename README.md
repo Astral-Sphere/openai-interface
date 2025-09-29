@@ -8,8 +8,8 @@ and other features are still in development.
 
 > Repository:
 >
-> [GitCode Repo](https://github.com/Astral-Sphere/openai-interface)
-> [GitHub Repo](https://github.com/Astral-Sphere/openai-interface)
+> GitCode: [GitCode Repo](https://github.com/Astral-Sphere/openai-interface)  
+> GitHub: [GitHub Repo](https://github.com/Astral-Sphere/openai-interface)
 >
 > You are welcome to contribute to this project through any of the links above.
 
@@ -164,6 +164,7 @@ fields, you can add them to `extra_body` or `extra_body_map`.
 - [`completion`]: Contains all completion related structs, enums, and methods.
   Note that this API is getting deprecated in favour of `chat` and is only available
   for out-dated LLM models.
+- [`files`]: Providing the capacity to upload and manage files.
 - [`rest`]: Providing all REST related traits and methods.
 - [`errors`]: Defines error types used throughout the crate.
 

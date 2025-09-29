@@ -13,7 +13,7 @@ mod tests {
 
     use futures_util::StreamExt;
 
-    use crate::rest::post::{NoStream, Stream};
+    use crate::rest::post::{PostNoStream, PostStream};
 
     use super::*;
 
