@@ -8,7 +8,7 @@ and other features are still in development.
 
 > Repository:
 >
-> GitCode: [GitCode Repo](https://github.com/Astral-Sphere/openai-interface)  
+> GitCode: [GitCode Repo](https://gitcode.com/astral-sphere/openai-interface)  
 > GitHub: [GitHub Repo](https://github.com/Astral-Sphere/openai-interface)
 >
 > You are welcome to contribute to this project through any of the links above.
