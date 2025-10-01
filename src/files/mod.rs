@@ -1,5 +1,6 @@
 pub mod create;
 pub mod list;
+pub mod retrieve;
 
 use std::str::FromStr;
 
@@ -7,7 +8,7 @@ use serde::Deserialize;
 
 use crate::errors::OapiError;
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
 pub struct FileObject {
     /// The file identifier, which can be referenced in the API endpoints.
     pub id: String,
@@ -33,7 +34,7 @@ pub struct FileObject {
     pub status_details: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum FileStatus {
     Uploaded,
@@ -41,7 +42,7 @@ pub enum FileStatus {
     Error,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
 pub enum FilePurpose {
     #[serde(rename = "assistant")]
     Assistant,

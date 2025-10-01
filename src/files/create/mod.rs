@@ -8,9 +8,10 @@
 //!
 //! The `create` module contains:
 //! - [`request`]: File upload request types and functionality
-//! - [`response`]: File object response types
 //! - Support for multipart/form-data file uploads
 //! - Comprehensive error handling for file operations
+//!
+//! The response object is in [`super`]
 //!
 //! # Examples
 //!

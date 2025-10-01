@@ -5,7 +5,10 @@
 
 use url::Url;
 
-use crate::rest::get::{Get, GetNoStream};
+use crate::{
+    errors::OapiError,
+    rest::get::{Get, GetNoStream},
+};
 
 /// Request parameters for listing files
 #[derive(Debug, Clone, Default)]
@@ -25,8 +28,9 @@ pub struct ListFilesRequest {
 }
 
 impl Get for ListFilesRequest {
-    /// base_url should look like https://api.openai.com/v1/ (must end with '/')
-    fn build_url(&self, base_url: &str) -> String {
+    #[allow(rustdoc::bare_urls)]
+    /// base_url should look like https://api.openai.com/v1/ (must ends with '/')
+    fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
         let mut url = Url::parse(base_url)
             .expect("Failed to parse base URL")
             .join("files")
@@ -55,9 +59,9 @@ impl Get for ListFilesRequest {
         // Remove trailing '?' if no parameters were added
         let url_string = url.to_string();
         if url_string.ends_with('?') && !has_params {
-            url_string.trim_end_matches('?').to_string()
+            Ok(url_string.trim_end_matches('?').to_string())
         } else {
-            url_string
+            Ok(url_string)
         }
     }
 }
