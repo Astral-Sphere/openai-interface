@@ -16,7 +16,7 @@ mod tests {
     fn test_build_url_no_params() {
         let request = ListFilesRequest::default();
         let base_url = "https://api.openai.com/v1/";
-        let url = request.build_url(base_url);
+        let url = request.build_url(base_url).expect("Failed to build url");
         assert_eq!(url, "https://api.openai.com/v1/files");
     }
 
@@ -27,7 +27,7 @@ mod tests {
             ..Default::default()
         };
         let base_url = "https://api.openai.com/v1/";
-        let url = request.build_url(base_url);
+        let url = request.build_url(base_url).expect("Failed to build url");
         assert_eq!(url, "https://api.openai.com/v1/files?purpose=fine-tune");
     }
 
@@ -38,7 +38,7 @@ mod tests {
             ..Default::default()
         };
         let base_url = "https://api.openai.com/v1/";
-        let url = request.build_url(base_url);
+        let url = request.build_url(base_url).expect("Failed to build url");
         assert_eq!(url, "https://api.openai.com/v1/files?limit=100");
     }
 
@@ -49,7 +49,7 @@ mod tests {
             ..Default::default()
         };
         let base_url = "https://api.openai.com/v1/";
-        let url = request.build_url(base_url);
+        let url = request.build_url(base_url).expect("Failed to build url");
         assert_eq!(url, "https://api.openai.com/v1/files?after=file_123");
     }
 
@@ -61,7 +61,7 @@ mod tests {
             after: Some("file_abc".to_string()),
         };
         let base_url = "https://api.openai.com/v1/";
-        let url = request.build_url(base_url);
+        let url = request.build_url(base_url).expect("Failed to build url");
         // Note: URL parameters are ordered alphabetically by the url crate
         assert!(url.contains("after=file_abc"));
         assert!(url.contains("limit=50"));
@@ -76,7 +76,7 @@ mod tests {
             ..Default::default()
         };
         let base_url = "https://api.openai.com/v1/";
-        let url = request.build_url(base_url);
+        let url = request.build_url(base_url).expect("Failed to build url");
         assert_eq!(url, "https://api.openai.com/v1/files?purpose=fine+tune");
     }
 

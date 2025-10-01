@@ -91,12 +91,12 @@
 //! }
 //!
 //! impl Get for ComplexRequest {
-//!     fn build_url(&self, base_url: &str) -> String {
+//!     fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
 //!         let mut url = format!("{}/{}", base_url, self.resource_id);
 //!         if let Some(limit) = self.limit {
 //!             url.push_str(&format!("?limit={}", limit));
 //!         }
-//!         url
+//!         Ok(url)
 //!     }
 //! }
 //!

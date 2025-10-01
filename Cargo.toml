@@ -1,6 +1,6 @@
 [package]
 name = "openai-interface"
-version = "0.4.3"
+version = "0.4.4"
 edition = "2024"
 authors = [
     "Yu Xiaosong <q5vsx3@163.com>", # 于小淞
@@ -14,7 +14,7 @@ keywords = ["openai", "api", "chat", "completion", "ai"]
 categories = ["api-bindings", "web-programming"]
 
 [dependencies]
-anyhow = { version = "1.0.98", features = ["backtrace"] }
+anyhow = { version = "1.0", features = ["backtrace"] }
 thiserror = "2.0"
 
 reqwest = { version = "0.12", features = ["json", "stream", "multipart"] }

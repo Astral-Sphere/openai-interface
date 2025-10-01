@@ -28,6 +28,8 @@ pub enum OapiError {
     FileNotFoundError(PathBuf),
     #[error("Failed to read file: {0}")]
     FileReadError(std::io::Error),
+    #[error("Failed to operate on url: {0}")]
+    UrlError(url::ParseError),
 
     #[error("Not implemented")]
     NotImplemented,

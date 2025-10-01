@@ -18,6 +18,7 @@ pub trait Get {
     ///
     /// ```rust
     /// use openai_interface::rest::get::Get;
+    /// use openai_interface::errors::OapiError;
     ///
     /// struct MyRequest {
     ///     id: String,
@@ -25,16 +26,16 @@ pub trait Get {
     /// }
     ///
     /// impl Get for MyRequest {
-    ///     fn build_url(&self, base_url: &str) -> String {
+    ///     fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
     ///         let mut url = format!("{}/{}", base_url, self.id);
     ///         if let Some(limit) = self.limit {
     ///             url.push_str(&format!("?limit={}", limit));
     ///         }
-    ///         url
+    ///         Ok(url)
     ///     }
     /// }
     /// ```
-    fn build_url(&self, base_url: &str) -> String;
+    fn build_url(&self, base_url: &str) -> Result<String, OapiError>;
 }
 
 /// Trait for non-streaming GET requests
@@ -48,7 +49,7 @@ pub trait GetNoStream: Get + Sync + Send {
         key: &str,
     ) -> impl Future<Output = Result<String, OapiError>> + Send + Sync {
         async move {
-            let url = self.build_url(base_url);
+            let url = self.build_url(base_url)?;
             let client = reqwest::Client::new();
             let response = client
                 .get(&url)
