@@ -6,12 +6,18 @@
 //!
 //! # Features
 //!
-//! - **Chat Completions**: Full support for OpenAI's chat completion API
-//! - **Streaming and Non-streaming**: Support for both streaming and non-streaming responses
-//! - **Strong Typing**: Complete type definitions for all API requests and responses
-//! - **Error Handling**: Comprehensive error handling with detailed error types
-//! - **Async/Await**: Built with async/await support for efficient asynchronous operations
-//! - **Musl Support**: Designed to work with musl libc for lightweight deployments
+//! - **Chat Completions**: Full support for OpenAI's chat completion and completion API,
+//!   including both streaming and non-streaming responses.
+//! - **File**: Full support for OpenAI's file API.
+//! - **Streaming and Non-streaming**: Support for both streaming and non-streaming responses.
+//! - **Strong Typing**: Complete type definitions for all API requests and responses,
+//!   utilizing Rust's powerful type system.
+//! - **Error Handling**: Comprehensive error handling with detailed error types defined in
+//!   the [`errors`] module.
+//! - **Async/Await**: Built with async/await support.
+//! - **Musl Support**: Designed to work with musl libc out-of-the-box.
+//! - **Multiple Provider Support**: Expected to work with OpenAI, DeepSeek, Qwen, and other
+//!   compatible API providers.
 //!
 //! ## Implemented APIs
 //!
