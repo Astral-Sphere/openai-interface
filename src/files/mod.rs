@@ -1,3 +1,12 @@
+//! File management module for OpenAI API integration.
+//!
+//! This module provides functionality for managing files in the OpenAI ecosystem,
+//! including creating, listing, and retrieving file objects. It defines the core
+//! data structures for representing files and their metadata as returned by the
+//! OpenAI API.
+//!
+//! Submodules: `create`, `list`, and `retrieve` for specific file operations
+
 pub mod create;
 pub mod list;
 pub mod retrieve;
