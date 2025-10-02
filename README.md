@@ -15,14 +15,18 @@ and other features are still in development.
 
 ## Features
 
-- **Chat Completions**: Full support for OpenAI's chat completion API, including both streaming and non-streaming responses
-- **Streaming and Non-streaming**: Support for both streaming and non-streaming responses
+- **Chat Completions**: Full support for OpenAI's chat completion and completion API,
+  including both streaming and non-streaming responses.
+- **File**: Full support for OpenAI's file API.
+- **Streaming and Non-streaming**: Support for both streaming and non-streaming responses.
 - **Strong Typing**: Complete type definitions for all API requests and responses,
-  utilizing Rust's powerful type system
-- **Error Handling**: Comprehensive error handling with detailed error types defined in the [`errors`] module
-- **Async/Await**: Built with async/await support
-- **Musl Support**: Designed to work with musl libc out-of-the-box
-- **Multiple Provider Support**: Works with OpenAI, DeepSeek, Qwen, and other compatible APIs
+  utilizing Rust's powerful type system.
+- **Error Handling**: Comprehensive error handling with detailed error types defined in
+  the [`errors`] module.
+- **Async/Await**: Built with async/await support.
+- **Musl Support**: Designed to work with musl libc out-of-the-box.
+- **Multiple Provider Support**: Expected to work with OpenAI, DeepSeek, Qwen, and other
+  compatible API providers.
 
 ## Installation
 
@@ -142,6 +146,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let chunk = ChatCompletionChunk::from_str(&chunk_string).unwrap();
         let content: &String = match chunk.choices[0].delta.content.as_ref().unwrap() {
             CompletionContent::Content(s) => s,
+            // `ReasoningContent` is a field from DeepSeek.
             CompletionContent::ReasoningContent(s) => s,
         };
         println!("lib::test_streaming message: {}", content);
@@ -170,8 +175,7 @@ fields, you can add them to `extra_body` or `extra_body_map`.
 
 ### Error Handling
 
-All errors are converted into either `crate::error::OapiError` or
-`crate::error::ResponseError`.
+All errors are converted into `crate::error::OapiError`
 
 ## Musl Build
 
