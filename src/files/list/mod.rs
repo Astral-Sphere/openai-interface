@@ -1,3 +1,34 @@
+//! This module provides functionality for listing files from OpenAI-compatible APIs.
+//!
+//! # Examples
+//!
+//! ```rust
+//!
+//! use std::sync::LazyLock;
+//!
+//! use openai_interface::files::list::request::ListFilesRequest;
+//! use openai_interface::rest::get::{Get, GetNoStream};
+//!
+//! const QWEN_BASE_URL: &'static str = "https://dashscope.aliyuncs.com/compatible-mode/v1/";
+//! const QWEN_API_KEY: LazyLock<&str> =
+//!     LazyLock::new(|| include_str!("../../../keys/modelstudio_domestic_key").trim());
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), anyhow::Error> {
+//!    let request = ListFilesRequest {
+//!        purpose: Some("batch".to_string()),
+//!        limit: Some(1),
+//!        // after: Some("file_123".to_string()),
+//!        ..Default::default()
+//!    };
+//!    let response = request.get_response(QWEN_BASE_URL, &QWEN_API_KEY).await?;
+//!
+//!    println!("Response: {:?}", response);
+//!
+//!    Ok(())
+//! }
+//! ```
+
 pub mod request;
 pub mod response;
 
