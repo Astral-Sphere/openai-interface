@@ -8,6 +8,7 @@
 //! Submodules: `create`, `list`, and `retrieve` for specific file operations
 
 pub mod create;
+pub mod delete;
 pub mod list;
 pub mod retrieve;
 
