@@ -36,8 +36,8 @@
 //!
 //! ```rust
 //! use std::sync::LazyLock;
-//! use openai_interface::chat::request::{Message, RequestBody};
-//! use openai_interface::chat::response::no_streaming::ChatCompletion;
+//! use openai_interface::chat::create::request::{Message, RequestBody};
+//! use openai_interface::chat::create::response::no_streaming::ChatCompletion;
 //! use openai_interface::rest::post::PostNoStream;
 //!
 //! // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
@@ -84,8 +84,8 @@
 //! example, all API parameters can be adjusted directly through the request struct.
 //!
 //! ```rust
-//! use openai_interface::chat::response::streaming::{CompletionContent, ChatCompletionChunk};
-//! use openai_interface::chat::request::{Message, RequestBody};
+//! use openai_interface::chat::create::response::streaming::{CompletionContent, ChatCompletionChunk};
+//! use openai_interface::chat::crate::request::{Message, RequestBody};
 //! use openai_interface::rest::post::PostStream;
 //! use futures_util::StreamExt;
 //!
@@ -157,9 +157,9 @@ pub mod rest;
 
 #[cfg(test)]
 mod tests {
-    use crate::chat::request::{Message, RequestBody};
-    use crate::chat::response::no_streaming::ChatCompletion;
-    use crate::chat::response::streaming::{ChatCompletionChunk, CompletionContent};
+    use crate::chat::create::request::{Message, RequestBody};
+    use crate::chat::create::response::no_streaming::ChatCompletion;
+    use crate::chat::create::response::streaming::{ChatCompletionChunk, CompletionContent};
     use crate::rest::post::{PostNoStream, PostStream};
     use futures_util::StreamExt;
     use std::sync::LazyLock;

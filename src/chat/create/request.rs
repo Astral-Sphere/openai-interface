@@ -538,7 +538,7 @@ mod request_test {
     use super::*;
 
     const DEEPSEEK_API_KEY: LazyLock<&str> =
-        LazyLock::new(|| include_str!("../.././keys/deepseek_domestic_key").trim());
+        LazyLock::new(|| include_str!("../../../keys/deepseek_domestic_key").trim());
     const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
     const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 
