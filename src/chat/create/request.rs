@@ -16,11 +16,11 @@ use crate::{
 /// ```rust
 /// use std::sync::LazyLock;
 /// use futures_util::StreamExt;
-/// use openai_interface::chat::request::{Message, RequestBody};
+/// use openai_interface::chat::create::request::{Message, RequestBody};
 /// use openai_interface::rest::post::PostStream;
 ///
 /// const DEEPSEEK_API_KEY: LazyLock<&str> =
-///     LazyLock::new(|| include_str!("../.././keys/deepseek_domestic_key").trim());
+///     LazyLock::new(|| include_str!("../../../keys/deepseek_domestic_key").trim());
 /// const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
 /// const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 ///

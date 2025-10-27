@@ -85,7 +85,7 @@
 //!
 //! ```rust
 //! use openai_interface::chat::create::response::streaming::{CompletionContent, ChatCompletionChunk};
-//! use openai_interface::chat::crate::request::{Message, RequestBody};
+//! use openai_interface::chat::create::request::{Message, RequestBody};
 //! use openai_interface::rest::post::PostStream;
 //! use futures_util::StreamExt;
 //!
