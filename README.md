@@ -3,7 +3,7 @@
 A low-level Rust interface for interacting with OpenAI's API. Both streaming
 and non-streaming APIs are supported.
 
-Currently, only chat completion is supported. FIM completion, image generation,
+Currently, only chat completion and file management are supported. Image generation
 and other features are still in development.
 
 > Repository:
@@ -30,15 +30,11 @@ and other features are still in development.
 
 ## Installation
 
-> [!WARNING] Versions prior to 0.3.0 have serious issues with SSE streaming responses processing.
-> Instead of a single chunk, multiple chunks may be returned in each iteration
-> of `chat::request::ChatCompletion::get_streaming_response_string`.
-
 Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-openai-interface = "0.4"
+openai-interface = "0.5.0-alpha.1"
 ```
 
 ## Usage
@@ -51,8 +47,8 @@ This crate provides methods for both streaming and non-streaming chat completion
 
 ```rust
 use std::sync::LazyLock;
-use openai_interface::chat::request::{Message, RequestBody};
-use openai_interface::chat::response::no_streaming::ChatCompletion;
+use openai_interface::chat::create::request::{Message, RequestBody};
+use openai_interface::chat::create::response::no_streaming::ChatCompletion;
 use std::str::FromStr;
 
 // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
@@ -99,8 +95,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 This example demonstrates how to handle streaming responses from the API.
 
 ```rust
-use openai_interface::chat::response::streaming::{CompletionContent, ChatCompletionChunk};
-use openai_interface::chat::request::{Message, RequestBody};
+use openai_interface::chat::create::request::{Message, RequestBody};
+use openai_interface::chat::create::response::streaming::{CompletionContent, ChatCompletionChunk};
 use futures_util::StreamExt;
 
 use std::str::FromStr;
