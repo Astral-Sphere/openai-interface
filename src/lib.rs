@@ -21,12 +21,13 @@
 //!
 //! ## Implemented APIs
 //!
-//! - Chat Completions
+//! - Chat (only `create` method)
 //! - Completions
+//! - Files
 //!
 //! ## Developing
 //!
-//! - Files
+//! - All methods of the `Chat` API
 //!
 //! # Examples
 //!
