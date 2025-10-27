@@ -3,7 +3,7 @@ pub mod streaming {
 
     use serde::Deserialize;
 
-    use crate::errors::OapiError;
+    use crate::{chat::ServiceTier, errors::OapiError};
 
     #[derive(Debug, Deserialize, Clone)]
     pub struct ChatCompletionChunk {
@@ -42,26 +42,6 @@ pub mod streaming {
     pub enum ChatCompletionChunkObject {
         #[serde(rename = "chat.completion.chunk")]
         ChatCompletionChunk,
-    }
-
-    /// The service tier used for processing the request.
-    ///
-    /// This enum represents the different service tiers that can be specified when
-    /// making a request to the API. Each tier corresponds to different performance
-    /// characteristics and pricing models.
-    #[derive(Debug, Deserialize, Clone)]
-    #[serde(rename_all = "lowercase")]
-    pub enum ServiceTier {
-        /// Automatically select the service tier based on project settings.
-        Auto,
-        /// Use the default service tier with standard pricing and performance.
-        Default,
-        /// Use the flex service tier for flexible processing requirements.
-        Flex,
-        /// Use the scale service tier for scalable processing needs.
-        Scale,
-        /// Use the priority service tier for high-priority requests.
-        Priority,
     }
 
     #[derive(Debug, Deserialize, Clone)]
@@ -325,7 +305,7 @@ pub mod no_streaming {
 
     use serde::Deserialize;
 
-    use crate::errors::OapiError;
+    use crate::{chat::ServiceTier, errors::OapiError};
 
     #[derive(Debug, Deserialize)]
     pub struct ChatCompletion {
@@ -363,16 +343,6 @@ pub mod no_streaming {
         pub object: ChatCompletionObject,
         /// Usage statistics for the completion request.
         pub usage: Option<CompletionUsage>,
-    }
-
-    #[derive(Debug, Deserialize)]
-    #[serde(rename_all = "lowercase")]
-    pub enum ServiceTier {
-        Auto,
-        Default,
-        Flex,
-        Scale,
-        Priority,
     }
 
     /// The object type, which is always `chat.completion`.

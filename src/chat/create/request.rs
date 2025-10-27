@@ -1,8 +1,13 @@
 //! This module contains the request body and POST method for the chat completion API.
 
+use std::collections::HashMap;
+
 use serde::Serialize;
 
-use crate::rest::post::{Post, PostNoStream, PostStream};
+use crate::{
+    chat::ServiceTier,
+    rest::post::{Post, PostNoStream, PostStream},
+};
 
 /// Creates a model response for the given chat conversation.
 ///
@@ -49,15 +54,14 @@ use crate::rest::post::{Post, PostNoStream, PostStream};
 /// ```
 #[derive(Serialize, Debug, Default, Clone)]
 pub struct RequestBody {
-    /// A list of messages comprising the conversation so far.
-    pub messages: Vec<Message>,
+    /// Other request bodies that are not in standard OpenAI API.
+    #[serde(flatten, skip_serializing_if = "Option::is_none")]
+    pub extra_body: Option<ExtraBody>,
 
-    /// Name of the model to use to generate the response.
-    pub model: String,
-
-    /// Although it is optional, you should explicitly designate it
-    /// for an expected response.
-    pub stream: bool,
+    /// Other request bodies that are not in standard OpenAI API and
+    /// not included in the ExtraBody struct.
+    #[serde(flatten, skip_serializing_if = "Option::is_none")]
+    pub extra_body_map: Option<serde_json::Map<String, serde_json::Value>>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their
     /// existing frequency in the text so far, decreasing the model's likelihood to
@@ -65,11 +69,16 @@ pub struct RequestBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f32>,
 
-    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on
-    /// whether they appear in the text so far, increasing the model's likelihood to
-    /// talk about new topics.
+    /// Whether to return log probabilities of the output tokens or not. If true,
+    /// returns the log probabilities of each output token returned in the `content` of
+    /// `message`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub presence_penalty: Option<f32>,
+    pub logprobs: Option<bool>,
+
+    /// An upper bound for the number of tokens that can be generated for a completion,
+    /// including visible output tokens and reasoning tokens.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_completion_tokens: Option<u32>,
 
     /// The maximum number of tokens that can be generated in the chat completion.
     /// Deprecated according to OpenAI's Python SDK in favour of
@@ -77,10 +86,70 @@ pub struct RequestBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_tokens: Option<u32>,
 
-    /// An upper bound for the number of tokens that can be generated for a completion,
-    /// including visible output tokens and reasoning tokens.
+    /// A list of messages comprising the conversation so far.
+    pub messages: Vec<Message>,
+
+    /// Set of 16 key-value pairs that can be attached to an object. This can be useful
+    /// for storing additional information about the object in a structured format, and
+    /// querying for objects via API or the dashboard.
+    ///
+    /// Keys are strings with a maximum length of 64 characters. Values are strings with
+    /// a maximum length of 512 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_completion_tokens: Option<u32>,
+    pub metadata: Option<HashMap<String, String>>,
+
+    /// Output types that you would like the model to generate. Most models are capable
+    /// of generating text, which is the default:
+    ///
+    /// `["text"]`
+    ///
+    /// The `gpt-4o-audio-preview` model can also be used to
+    /// [generate audio](https://platform.openai.com/docs/guides/audio). To request that
+    /// this model generate both text and audio responses, you can use:
+    ///
+    /// `["text", "audio"]`
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub modalities: Option<Vec<Modality>>,
+
+    /// Name of the model to use to generate the response.
+    pub model: String, // The type of this attribute needs improvements.
+
+    /// How many chat completion choices to generate for each input message. Note that
+    /// you will be charged based on the number of generated tokens across all of the
+    /// choices. Keep `n` as `1` to minimize costs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<u32>,
+
+    /// Whether to enable
+    /// [parallel function calling](https://platform.openai.com/docs/guides/function-calling#configuring-parallel-function-calling)
+    /// during tool use.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parallel_tool_calls: Option<bool>,
+
+    /// Static predicted output content, such as the content of a text file that is
+    /// being regenerated.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prediction: Option<ChatCompletionPredictionContentParam>,
+
+    /// Number between -2.0 and 2.0. Positive values penalize new tokens based on
+    /// whether they appear in the text so far, increasing the model's likelihood to
+    /// talk about new topics.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub presence_penalty: Option<f32>,
+
+    /// Used by OpenAI to cache responses for similar requests to optimize your cache
+    /// hit rates. Replaces the `user` field.
+    /// [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_cache_key: Option<String>,
+
+    /// Constrains effort on reasoning for
+    /// [reasoning models](https://platform.openai.com/docs/guides/reasoning). Currently
+    /// supported values are `minimal`, `low`, `medium`, and `high`. Reducing reasoning
+    /// effort can result in faster responses and fewer tokens used on reasoning in a
+    /// response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<String>,
 
     /// specifying the format that the model must output.
     ///
@@ -92,7 +161,7 @@ pub struct RequestBody {
     /// ensures the message the model generates is valid JSON. Using `json_schema` is
     /// preferred for models that support it.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub response_format: Option<ResponseFormat>, // The type of this attribute needs improvements.
+    pub response_format: Option<ResponseFormat>,
 
     /// A stable identifier used to help detect users of your application that may be
     /// violating OpenAI's usage policies. The IDs should be a string that uniquely
@@ -107,16 +176,41 @@ pub struct RequestBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seed: Option<i64>,
 
-    /// How many chat completion choices to generate for each input message. Note that
-    /// you will be charged based on the number of generated tokens across all of the
-    /// choices. Keep `n` as `1` to minimize costs.
+    /// Specifies the processing type used for serving the request.
+    ///
+    /// - If set to 'auto', then the request will be processed with the service tier
+    ///   configured in the Project settings. Unless otherwise configured, the Project
+    ///   will use 'default'.
+    /// - If set to 'default', then the request will be processed with the standard
+    ///   pricing and performance for the selected model.
+    /// - If set to '[flex](https://platform.openai.com/docs/guides/flex-processing)' or
+    ///   '[priority](https://openai.com/api-priority-processing/)', then the request
+    ///   will be processed with the corresponding service tier.
+    /// - When not set, the default behavior is 'auto'.
+    ///
+    /// When the `service_tier` parameter is set, the response body will include the
+    /// `service_tier` value based on the processing mode actually used to serve the
+    /// request. This response value may be different from the value set in the
+    /// parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub n: Option<u32>,
+    pub service_tier: Option<ServiceTier>,
 
     /// Up to 4 sequences where the API will stop generating further tokens. The
     /// returned text will not contain the stop sequence.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop: Option<StopKeywords>,
+
+    /// Whether or not to store the output of this chat completion request for use in
+    /// our [model distillation](https://platform.openai.com/docs/guides/distillation)
+    /// or [evals](https://platform.openai.com/docs/guides/evals) products.
+    ///
+    /// Supports text and image inputs. Note: image inputs over 8MB will be dropped.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub store: Option<bool>,
+
+    /// Although it is optional, you should explicitly designate it
+    /// for an expected response.
+    pub stream: bool,
 
     /// Options for streaming response. Only set this when you set `stream: true`
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -128,17 +222,6 @@ pub struct RequestBody {
     /// not both.
     pub temperature: Option<f32>,
 
-    /// An alternative to sampling with temperature, called nucleus sampling, where the
-    /// model considers the results of the tokens with top_p probability mass. So 0.1
-    /// means only the tokens comprising the top 10% probability mass are considered.
-    ///
-    /// It is generally recommended to alter this or `temperature` but not both.
-    pub top_p: Option<f32>,
-
-    /// A list of tools the model may call.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<RequestTool>>,
-
     /// Controls which (if any) tool is called by the model. `none` means the model will
     /// not call any tool and instead generates a message. `auto` means the model can
     /// pick between generating a message or calling one or more tools. `required` means
@@ -148,11 +231,9 @@ pub struct RequestBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<ToolChoice>,
 
-    /// Whether to return log probabilities of the output tokens or not. If true,
-    /// returns the log probabilities of each output token returned in the `content` of
-    /// `message`.
+    /// A list of tools the model may call.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub logprobs: Option<bool>,
+    pub tools: Option<Vec<RequestTool>>,
 
     /// An integer between 0 and 20 specifying the number of most likely tokens to
     /// return at each token position, each with an associated log probability.
@@ -160,14 +241,32 @@ pub struct RequestBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_logprobs: Option<u32>,
 
-    /// Other request bodies that are not in standard OpenAI API.
-    #[serde(flatten, skip_serializing_if = "Option::is_none")]
-    pub extra_body: Option<ExtraBody>,
+    /// An alternative to sampling with temperature, called nucleus sampling, where the
+    /// model considers the results of the tokens with top_p probability mass. So 0.1
+    /// means only the tokens comprising the top 10% probability mass are considered.
+    ///
+    /// It is generally recommended to alter this or `temperature` but not both.
+    pub top_p: Option<f32>,
 
-    /// Other request bodies that are not in standard OpenAI API and
-    /// not included in the ExtraBody struct.
-    #[serde(flatten, skip_serializing_if = "Option::is_none")]
-    pub extra_body_map: Option<serde_json::Map<String, serde_json::Value>>,
+    /// This field is being replaced by `safety_identifier` and `prompt_cache_key`. Use
+    /// `prompt_cache_key` instead to maintain caching optimizations. A stable
+    /// identifier for your end-users. Used to boost cache hit rates by better bucketing
+    /// similar requests and to help OpenAI detect and prevent abuse.
+    /// [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#safety-identifiers).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+
+    /// Constrains the verbosity of the model's response. Lower values will result in
+    /// more concise responses, while higher values will result in more verbose
+    /// responses. Currently supported values are `low`, `medium`, and `high`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub verbosity: Option<LowMediumHighEnum>,
+
+    /// This tool searches the web for relevant results to use in a response. Learn more
+    /// about the
+    /// [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub web_search: Option<WebSearchOptions>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -324,7 +423,50 @@ pub struct JSONSchema {
     pub strict: Option<bool>,
 }
 
-#[inline]
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Modality {
+    Text,
+    Audio,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct ChatCompletionPredictionContentParam {
+    /// The content that should be matched when generating a model response. If
+    /// generated tokens would match this content, the entire model response can be
+    /// returned much more quickly.
+    pub content: ChatCompletionPredictionContentParamContent,
+
+    /// The type of the predicted content you want to provide.
+    /// This type is currently always `content`.
+    pub type_: ChatCompletionPredictionContentParamType,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum ChatCompletionPredictionContentParamContent {
+    Text(String),
+    ChatCompletionContentPartTextParam {
+        /// The text content.
+        text: String,
+        /// The type of the content part.
+        #[serde(rename = "type")]
+        type_: ChatCompletionContentPartTextParamType,
+    },
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum ChatCompletionContentPartTextParamType {
+    Text,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum ChatCompletionPredictionContentParamType {
+    Content,
+}
+
 fn is_false(value: &bool) -> bool {
     !value
 }
@@ -334,6 +476,47 @@ fn is_false(value: &bool) -> bool {
 pub enum StopKeywords {
     Word(String),
     Words(Vec<String>),
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum LowMediumHighEnum {
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct WebSearchOptions {
+    /// High level guidance for the amount of context window space to use for the
+    /// search. One of `low`, `medium`, or `high`. `medium` is the default.
+    pub search_context_size: LowMediumHighEnum,
+
+    pub user_location: Option<WebSearchOptionsUserLocation>,
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum WebSearchOptionsUserLocation {
+    /// The type of location approximation. Always `approximate`.
+    Approximate(WebSearchOptionsUserLocationApproximate),
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct WebSearchOptionsUserLocationApproximate {
+    /// Free text input for the city of the user, e.g. `San Francisco`.
+    pub city: String,
+
+    /// The two-letter [ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1) of
+    /// the user, e.g. `US`.
+    pub country: String,
+
+    /// Free text input for the region of the user, e.g. `California`.
+    pub region: String,
+
+    /// The [IANA timezone](https://timeapi.io/documentation/iana-timezones) of the
+    /// user, e.g. `America/Los_Angeles`.
+    pub timezone: String,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -359,6 +542,15 @@ pub enum RequestTool {
         /// Properties of the custom tool.
         custom: ToolCustom,
     },
+}
+
+#[derive(Serialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum ReasoningEffort {
+    Minimal,
+    Low,
+    Medium,
+    High,
 }
 
 #[derive(Serialize, Debug, Clone)]
