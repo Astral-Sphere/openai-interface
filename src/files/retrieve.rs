@@ -40,7 +40,10 @@
 //!             let base_url = MODELSCOPE_BASE_URL.to_string();
 //!             let key = MODELSCOPE_KEY.to_string();
 //!             async move {
-//!                 let retrieve_request = RetrieveRequest { file_id: &file_id };
+//!                 let retrieve_request = RetrieveRequest {
+//!                     file_id: &file_id,
+//!                     ..Default::default()
+//!                 };
 //!                 retrieve_request.get_response(&base_url, &key).await
 //!             }
 //!         })
@@ -70,6 +73,8 @@
 //! ```
 
 pub mod request {
+    use std::collections::HashMap;
+
     use url::Url;
 
     use crate::{
@@ -77,19 +82,26 @@ pub mod request {
         rest::get::{Get, GetNoStream},
     };
 
+    /// Query parameters for retrieving a file.
+    #[derive(Debug, Clone, Default)]
     pub struct RetrieveRequest<'a> {
         pub file_id: &'a str,
+        pub extra_query: HashMap<&'a str, &'a str>,
     }
 
     impl<'a> Get for RetrieveRequest<'a> {
-        /// base_url should look like <https://api.openai.com/v1/> (must ends with '/')
+        /// base_url should look like <https://api.openai.com/v1>
         fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
-            let url = Url::parse(base_url)
-                .map_err(|e| OapiError::UrlError(e))?
-                .join("files/")
-                .unwrap()
-                .join(self.file_id)
-                .map_err(|e| OapiError::UrlError(e))?;
+            let mut url = Url::parse(base_url.trim_end_matches('/'))
+                .map_err(|err| OapiError::UrlError(err))?;
+            url.path_segments_mut()
+                .map_err(|_| OapiError::UrlError(url::ParseError::RelativeUrlWithoutBase))?
+                .push("files")
+                .push(self.file_id);
+
+            for (key, value) in &self.extra_query {
+                url.query_pairs_mut().append_pair(key, value);
+            }
 
             Ok(url.to_string())
         }
@@ -118,7 +130,10 @@ mod tests {
 
     #[test]
     fn test_build_url() {
-        let request = request::RetrieveRequest { file_id: "file_id" };
+        let request = request::RetrieveRequest {
+            file_id: "file_id",
+            ..Default::default()
+        };
         let url = request.build_url("https://api.openai.com/v1/").unwrap();
         assert_eq!(url, "https://api.openai.com/v1/files/file_id");
     }
@@ -143,7 +158,10 @@ mod tests {
                 let base_url = MODELSCOPE_BASE_URL.to_string();
                 let key = MODELSCOPE_KEY.to_string();
                 async move {
-                    let retrieve_request = RetrieveRequest { file_id: &file_id };
+                    let retrieve_request = RetrieveRequest {
+                        file_id: &file_id,
+                        ..Default::default()
+                    };
                     retrieve_request.get_response(&base_url, &key).await
                 }
             })
