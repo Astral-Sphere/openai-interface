@@ -1,6 +1,8 @@
 //! Delete a file by file ID.
 
 pub mod request {
+    use std::collections::HashMap;
+
     use url::Url;
 
     use crate::{
@@ -11,19 +13,22 @@ pub mod request {
     #[derive(Debug, Default)]
     pub struct DeleteRequest<'a> {
         pub file_id: &'a str,
-        /// This parameter makes no difference yet.
-        pub extra_headers: serde_json::Map<String, serde_json::Value>,
+        pub extra_query: HashMap<&'a str, &'a str>,
     }
 
     impl Delete for DeleteRequest<'_> {
-        /// base_url should look like https://api.openai.com/v1/ (must ends with '/')
+        /// base_url should look like https://api.openai.com/v1
         fn build_url(&self, base_url: &str) -> Result<String, crate::errors::OapiError> {
-            let url = Url::parse(base_url)
-                .map_err(|e| OapiError::UrlError(e))?
-                .join("files/")
-                .unwrap()
-                .join(self.file_id)
-                .map_err(|e| OapiError::UrlError(e))?;
+            let mut url =
+                Url::parse(base_url.trim_end_matches('/')).map_err(|e| OapiError::UrlError(e))?;
+            url.path_segments_mut()
+                .map_err(|_| OapiError::UrlCannotBeBase(base_url.to_string()))?
+                .push("files")
+                .push(self.file_id);
+
+            for (key, value) in &self.extra_query {
+                url.query_pairs_mut().append_pair(key, value).finish();
+            }
 
             println!("Built URL: {}", url);
             Ok(url.to_string())
