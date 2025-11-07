@@ -29,12 +29,13 @@ pub struct ListFilesRequest {
 
 impl Get for ListFilesRequest {
     #[allow(rustdoc::bare_urls)]
-    /// base_url should look like https://api.openai.com/v1/ (must ends with '/')
+    /// base_url should look like https://api.openai.com/v1
     fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
-        let mut url = Url::parse(base_url)
-            .expect("Failed to parse base URL")
-            .join("files")
-            .expect("Failed to join URL");
+        let mut url =
+            Url::parse(base_url.trim_end_matches('/')).map_err(|e| OapiError::UrlError(e))?;
+        url.path_segments_mut()
+            .map_err(|_| OapiError::UrlCannotBeBase(base_url.to_string()))?
+            .push("files");
 
         let mut has_params = false;
         {
