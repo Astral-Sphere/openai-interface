@@ -30,6 +30,8 @@ pub enum OapiError {
     FileReadError(std::io::Error),
     #[error("Failed to operate on url: {0}")]
     UrlError(url::ParseError),
+    #[error("Cannot be base: {0}")]
+    UrlCannotBeBase(String),
 
     #[error("Not implemented")]
     NotImplemented,
