@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::errors::OapiError;
 
 pub mod create;
+pub mod delete;
 pub mod retrieve;
 pub mod update;
 
