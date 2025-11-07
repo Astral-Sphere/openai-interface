@@ -23,14 +23,14 @@ pub mod request {
     }
 
     impl Get for ChatRetrieveRequest {
-        /// base_url should look like <https://api.openai.com/v1/> (must ends with '/')
+        /// base_url should look like <https://api.openai.com/v1>
         fn build_url(&self, base_url: &str) -> Result<String, crate::errors::OapiError> {
-            let url = Url::parse(base_url)
-                .map_err(|e| OapiError::UrlError(e))?
-                .join("chat/")
-                .unwrap()
-                .join(&self.completion_id)
-                .map_err(|e| OapiError::UrlError(e))?;
+            let mut url =
+                Url::parse(base_url.trim_end_matches('/')).map_err(|e| OapiError::UrlError(e))?;
+            url.path_segments_mut()
+                .map_err(|_| OapiError::UrlCannotBeBase(base_url.to_string()))?
+                .push("chat")
+                .push(&self.completion_id);
 
             Ok(url.to_string())
         }
