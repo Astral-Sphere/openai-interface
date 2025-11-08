@@ -17,6 +17,15 @@ pub mod request {
     /// supported modification is to update the `metadata` field.
     #[derive(Debug, Serialize, Default, Clone)]
     pub struct ChatUpdate<'a> {
+        /// The ID of the completion to update.
+        #[serde(skip_serializing)]
+        pub completion_id: &'a str,
+        /// Add additional JSON properties to the request
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub extra_body: Option<serde_json::Map<String, serde_json::Value>>,
+        /// Add additional query parameters to the request
+        #[serde(skip_serializing)]
+        pub extra_query: HashMap<&'a str, &'a str>,
         /// Set of 16 key-value pairs that can be attached to an object. This can be useful
         /// for storing additional information about the object in a structured format, and
         /// querying for objects via API or the dashboard.
