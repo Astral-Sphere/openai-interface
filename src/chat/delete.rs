@@ -22,6 +22,9 @@ pub mod request {
     }
 
     impl Delete for ChatDeleteRequest<'_> {
+        /// Builds the URL for the request.
+        ///
+        /// `base_url` should be like <https://api.openai.com/v1>
         fn build_url(&self, base_url: &str) -> Result<String, crate::errors::OapiError> {
             let mut url = Url::parse(base_url).map_err(|e| OapiError::UrlError(e))?;
             url.path_segments_mut()

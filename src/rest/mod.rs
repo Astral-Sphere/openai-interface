@@ -51,6 +51,9 @@
 //!     fn is_streaming(&self) -> bool {
 //!         self.stream
 //!     }
+//!     fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
+//!         Ok(format!("{}/service", base_url))
+//!     }
 //! }
 //!
 //! impl PostNoStream for MyRequest {

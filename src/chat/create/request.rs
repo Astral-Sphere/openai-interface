@@ -3,9 +3,11 @@
 use std::collections::HashMap;
 
 use serde::Serialize;
+use url::Url;
 
 use crate::{
     chat::ServiceTier,
+    errors::OapiError,
     rest::post::{Post, PostNoStream, PostStream},
 };
 
@@ -21,7 +23,7 @@ use crate::{
 ///
 /// const DEEPSEEK_API_KEY: LazyLock<&str> =
 ///     LazyLock::new(|| include_str!("../../../keys/deepseek_domestic_key").trim());
-/// const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+/// const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/v1";
 /// const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 ///
 /// #[tokio::main]
@@ -711,6 +713,20 @@ impl Post for RequestBody {
     fn is_streaming(&self) -> bool {
         self.stream
     }
+
+    /// Builds the URL for the request.
+    ///
+    /// `base_url` should be like <https://api.openai.com/v1>
+    fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
+        let mut url =
+            Url::parse(base_url.trim_end_matches('/')).map_err(|e| OapiError::UrlError(e))?;
+        url.path_segments_mut()
+            .map_err(|_| OapiError::UrlCannotBeBase(base_url.to_string()))?
+            .push("chat")
+            .push("completions");
+
+        Ok(url.to_string())
+    }
 }
 
 impl PostNoStream for RequestBody {
@@ -731,7 +747,7 @@ mod request_test {
 
     const DEEPSEEK_API_KEY: LazyLock<&str> =
         LazyLock::new(|| include_str!("../../../keys/deepseek_domestic_key").trim());
-    const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+    const DEEPSEEK_CHAT_BASE: &'static str = "https://api.deepseek.com/v1";
     const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 
     #[tokio::test]
@@ -753,7 +769,7 @@ mod request_test {
         };
 
         let response = request
-            .get_response_string(DEEPSEEK_CHAT_URL, &*DEEPSEEK_API_KEY)
+            .get_response_string(DEEPSEEK_CHAT_BASE, &*DEEPSEEK_API_KEY)
             .await
             .unwrap();
 
@@ -781,7 +797,7 @@ mod request_test {
         };
 
         let mut response = request
-            .get_stream_response_string(DEEPSEEK_CHAT_URL, *DEEPSEEK_API_KEY)
+            .get_stream_response_string(DEEPSEEK_CHAT_BASE, *DEEPSEEK_API_KEY)
             .await
             .unwrap();
 

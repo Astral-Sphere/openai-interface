@@ -8,6 +8,10 @@ use crate::errors::OapiError;
 
 pub trait Post {
     fn is_streaming(&self) -> bool;
+    /// Builds the URL for the request.
+    ///
+    /// `base_url` should be like <https://api.openai.com/v1>
+    fn build_url(&self, base_url: &str) -> Result<String, OapiError>;
 }
 
 pub trait PostNoStream: Post + Serialize + Sync + Send {
@@ -16,7 +20,7 @@ pub trait PostNoStream: Post + Serialize + Sync + Send {
     /// Sends a POST request to the specified URL with the provided api-key.
     fn get_response_string(
         &self,
-        url: &str,
+        base_url: &str,
         key: &str,
     ) -> impl Future<Output = Result<String, OapiError>> + Send + Sync {
         async move {
@@ -26,7 +30,7 @@ pub trait PostNoStream: Post + Serialize + Sync + Send {
 
             let client = reqwest::Client::new();
             let response = client
-                .post(url)
+                .post(self.build_url(base_url)?)
                 .headers({
                     let mut headers = reqwest::header::HeaderMap::new();
                     headers.insert("Content-Type", "application/json".parse().unwrap());
@@ -81,7 +85,7 @@ pub trait PostStream: Post + Serialize + Sync + Send {
     ///
     /// const DEEPSEEK_API_KEY: LazyLock<&str> =
     ///     LazyLock::new(|| include_str!("../../keys/deepseek_domestic_key").trim());
-    /// const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+    /// const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/";
     /// const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
     ///
     /// #[tokio::main]
@@ -114,7 +118,7 @@ pub trait PostStream: Post + Serialize + Sync + Send {
     /// ```
     fn get_stream_response_string(
         &self,
-        url: &str,
+        base_url: &str,
         api_key: &str,
     ) -> impl Future<Output = Result<BoxStream<'static, Result<String, OapiError>>, OapiError>>
     + Send
@@ -127,7 +131,7 @@ pub trait PostStream: Post + Serialize + Sync + Send {
             let client = reqwest::Client::new();
 
             let response = client
-                .post(url)
+                .post(&self.build_url(base_url)?)
                 .headers({
                     let mut headers = reqwest::header::HeaderMap::new();
                     headers.insert("Content-Type", "application/json".parse().unwrap());
@@ -161,14 +165,14 @@ pub trait PostStream: Post + Serialize + Sync + Send {
 
     fn get_stream_response(
         &self,
-        url: &str,
+        base_url: &str,
         api_key: &str,
     ) -> impl Future<
         Output = Result<BoxStream<'static, Result<Self::Response, OapiError>>, OapiError>,
     > + Send
     + Sync {
         async move {
-            let stream = self.get_stream_response_string(url, api_key).await?;
+            let stream = self.get_stream_response_string(base_url, api_key).await?;
 
             let parsed_stream = stream
                 .take_while(|result| {

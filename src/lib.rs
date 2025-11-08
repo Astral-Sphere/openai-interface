@@ -44,7 +44,7 @@
 //! // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
 //! const DEEPSEEK_API_KEY: LazyLock<&str> =
 //!    LazyLock::new(|| include_str!("../keys/deepseek_domestic_key").trim());
-//! const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+//! const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/";
 //! const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 //!
 //! #[tokio::main]
@@ -95,7 +95,7 @@
 //! // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
 //! const DEEPSEEK_API_KEY: LazyLock<&str> =
 //!    LazyLock::new(|| include_str!("../keys/deepseek_domestic_key").trim());
-//! const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+//! const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/v1/";
 //! const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 //!
 //! #[tokio::main]
@@ -168,7 +168,7 @@ mod tests {
     // You need to provide your own DeepSeek API key at /keys/deepseek_domestic_key
     const DEEPSEEK_API_KEY: LazyLock<&str> =
         LazyLock::new(|| include_str!("../keys/deepseek_domestic_key").trim());
-    const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/chat/completions";
+    const DEEPSEEK_CHAT_URL: &'static str = "https://api.deepseek.com/v1";
     const DEEPSEEK_MODEL: &'static str = "deepseek-chat";
 
     #[tokio::test]

@@ -18,7 +18,7 @@ mod tests {
     use super::*;
 
     const QWEN_MODEL: &str = "qwen-coder-turbo-latest";
-    const QWEN_URL: &str = "https://dashscope.aliyuncs.com/compatible-mode/v1/completions";
+    const QWEN_URL: &str = "https://dashscope.aliyuncs.com/compatible-mode/v1";
     const QWEN_API_KEY: LazyLock<&'static str> =
         LazyLock::new(|| include_str!("../../keys/modelstudio_domestic_key").trim());
 

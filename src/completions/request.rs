@@ -1,8 +1,12 @@
 use std::collections::HashMap;
 
 use serde::Serialize;
+use url::Url;
 
-use crate::rest::post::{Post, PostNoStream, PostStream};
+use crate::{
+    errors::OapiError,
+    rest::post::{Post, PostNoStream, PostStream},
+};
 
 #[derive(Debug, Serialize, Default, Clone)]
 pub struct CompletionRequest {
@@ -184,6 +188,19 @@ impl Post for CompletionRequest {
     fn is_streaming(&self) -> bool {
         self.stream
     }
+
+    /// Builds the URL for the request.
+    ///
+    /// `base_url` should be like <https://api.openai.com/v1>
+    fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
+        let mut url =
+            Url::parse(base_url.trim_end_matches('/')).map_err(|e| OapiError::UrlError(e))?;
+        url.path_segments_mut()
+            .map_err(|_| OapiError::UrlCannotBeBase(base_url.to_string()))?
+            .push("completions");
+
+        Ok(url.to_string())
+    }
 }
 
 impl PostNoStream for CompletionRequest {
@@ -203,7 +220,7 @@ mod tests {
     use super::*;
 
     const QWEN_MODEL: &str = "qwen-coder-turbo-latest";
-    const QWEN_URL: &str = "https://dashscope.aliyuncs.com/compatible-mode/v1/completions";
+    const QWEN_URL: &str = "https://dashscope.aliyuncs.com/compatible-mode/v1";
     const QWEN_API_KEY: LazyLock<&'static str> =
         LazyLock::new(|| include_str!("../../keys/modelstudio_domestic_key").trim());
 

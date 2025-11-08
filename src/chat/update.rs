@@ -51,6 +51,20 @@ pub mod request {
         fn is_streaming(&self) -> bool {
             false
         }
+
+        /// Builds the URL for the request.
+        ///
+        /// `base_url` should be like <https://api.openai.com/v1>
+        fn build_url(&self, base_url: &str) -> Result<String, crate::errors::OapiError> {
+            let mut url =
+                url::Url::parse(base_url).map_err(|e| crate::errors::OapiError::UrlError(e))?;
+            url.path_segments_mut()
+                .map_err(|_| crate::errors::OapiError::UrlCannotBeBase(base_url.to_string()))?
+                .push("chat")
+                .push("completions")
+                .push(self.completion_id);
+            Ok(url.to_string())
+        }
     }
 
     impl PostNoStream for ChatUpdate<'_> {

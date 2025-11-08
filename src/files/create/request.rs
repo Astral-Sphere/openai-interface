@@ -3,6 +3,7 @@
 use serde::Serialize;
 use std::future::Future;
 use std::path::PathBuf;
+use url::Url;
 
 use crate::errors::OapiError;
 use crate::rest::post::{Post, PostNoStream};
@@ -100,6 +101,19 @@ impl Post for CreateFileRequest {
     #[inline]
     fn is_streaming(&self) -> bool {
         false
+    }
+
+    /// Builds the URL for the request.
+    ///
+    /// `base_url` should be like <https://api.openai.com/v1>
+    fn build_url(&self, base_url: &str) -> Result<String, OapiError> {
+        let mut url =
+            Url::parse(base_url.trim_end_matches('/')).map_err(|e| OapiError::UrlError(e))?;
+        url.path_segments_mut()
+            .map_err(|_| OapiError::UrlCannotBeBase(base_url.to_string()))?
+            .push("files");
+
+        Ok(url.to_string())
     }
 }
 
