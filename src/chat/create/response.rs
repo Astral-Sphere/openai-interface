@@ -1,4 +1,9 @@
+//! This module provides structures for streaming and non-streaming
+//! chat completion responses.
+
 pub mod streaming {
+    //! Streaming chat completion response.
+
     use std::str::FromStr;
 
     use serde::Deserialize;
@@ -301,5 +306,9 @@ pub mod streaming {
 }
 
 pub mod no_streaming {
+    //! Non-streaming chat completion response.
+
+    /// Alias for `crate::chat::ChatCompletion`, which is shared
+    /// by many other modules. This alias is for compatibility.
     pub type ChatCompletion = crate::chat::ChatCompletion;
 }

@@ -1,4 +1,6 @@
-//! Response to a given `chat` conversation.
+//! # Chat Completions API Module
+//!
+//! This module provides components shared by many submodules.
 
 use std::str::FromStr;
 
