@@ -17,7 +17,7 @@ pub mod request {
     }
 
     impl Delete for DeleteRequest<'_> {
-        /// base_url should look like https://api.openai.com/v1
+        /// base_url should look like <https://api.openai.com/v1>
         fn build_url(&self, base_url: &str) -> Result<String, crate::errors::OapiError> {
             let mut url =
                 Url::parse(base_url.trim_end_matches('/')).map_err(|e| OapiError::UrlError(e))?;

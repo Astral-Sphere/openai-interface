@@ -10,7 +10,7 @@ pub trait Delete {
     /// Returns the URL with query parameters
     ///
     /// Parameters:
-    /// - _base_url_: should look like https://api.openai.com/v1/ (must ends with '/')
+    /// - _base_url_: should look like <https://api.openai.com/v1>
     fn build_url(&self, base_url: &str) -> Result<String, OapiError>;
 }
 
